@@ -37,7 +37,7 @@ su - deck -c "echo y | LANG=C yay -S \
             --noprovides \
             --answerdiff None \
             --answerclean None \
-            --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd"
+            --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc"
 
 # enable asking password
 sed -i 's/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers.d/wheel
