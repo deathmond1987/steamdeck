@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+set -x 
 
 # check if system is ro and remount to rw
 if [ "$(steamos-readonly status)" = "enabled" ]; then
