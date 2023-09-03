@@ -39,6 +39,9 @@ su - deck -c "echo y | LANG=C yay -S \
             --answerdiff None \
             --answerclean None \
             --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc"
+# add locale
+sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
+locale-gen
 
 # enable asking password
 sed -i 's/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers.d/wheel
