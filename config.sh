@@ -47,12 +47,14 @@ install_yay () {
 
 install_programs () {
     # my programs
+    # need to reinstall glibc for correct generating locales
     su - deck -c "echo y | LANG=C yay -S \
          --noprovides \
          --answerdiff None \
          --answerclean None \
-         --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc"
+         --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc glibc"
 }
+
 add_locale () {
     # add locale
     sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
