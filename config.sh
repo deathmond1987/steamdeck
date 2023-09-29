@@ -2,6 +2,14 @@
 set -euo pipefail
 set -x 
 
+set_variables () {
+    fakeroot_conf="/etc/ld.so.conf.d/fakeroot.conf"
+    SUDO_PATH="/etc/sudoers.d/wheel"
+    WHEEL_OLD="%wheel ALL=(ALL) ALL"
+    WHEEL_NEW="%wheel ALL=(ALL:ALL) NOPASSWD: ALL"
+    yay_git="/home/deck/yay-bin"
+}
+
 disable_ro () {
 # check if system is ro and remount to rw
     if [ "$(steamos-readonly status)" = "enabled" ]; then
@@ -11,7 +19,6 @@ disable_ro () {
 
 check_fakeroot_files () {
     # clean fakeroot install
-    fakeroot_conf="/etc/ld.so.conf.d/fakeroot.conf"
     if [ -f "${fakeroot_conf}" ]; then
         rm -f "${fakeroot_conf}"
     fi
@@ -24,12 +31,11 @@ install_devel () {
 
 disable_passwd () {
     # avoid asking password
-    sed -i 's/%wheel ALL=(ALL) ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers.d/wheel
+    sed -i "s/$WHEEL_OLD/$WHEEL_NEW/g" "$SUDO_PATH"
 }
 
 install_yay () {
     # clean yay install
-    yay_git="/home/deck/yay-bin"
     if [ -d "${yay_git}" ]; then
         rm -rf "${yay_git}"
     fi
@@ -63,10 +69,11 @@ add_locale () {
 
 enable_passwd () {
     # enable asking password
-    sed -i 's/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers.d/wheel
+    sed -i "s/$WHEEL_NEW/$WHEEL_OLD/g" "$SUDO_PATH"
 }
 
 main () {
+     set_variables
      disable_ro
      check_fakeroot_files
      install_devel
