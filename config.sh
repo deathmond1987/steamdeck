@@ -59,6 +59,12 @@ install_programs () {
          --answerdiff None \
          --answerclean None \
          --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc glibc"
+    su - deck -c "echo y | LANG=C yay -S \
+         --overwrite "*" \
+         --noprovides \
+         --answerdiff None \
+         --answerclean None \
+         --mflags \"--noconfirm\" mc"     
 }
 
 add_locale () {
