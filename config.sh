@@ -46,7 +46,7 @@ install_yay () {
          cd .. && \
          rm -rf yay-bin && \
          yay -Y --gendb && \
-         yes | yay -Syu --devel && \
+#         yes | yay -Syu --devel && \
          yay -Y --devel --save && \
          yay --editmenu --nodiffmenu --save"
 }
@@ -60,7 +60,7 @@ install_programs () {
          --answerclean None \
          --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc glibc"
     su - deck -c "echo y | LANG=C yay -S \
-         --overwrite "*" \
+         --overwrite "mc" \
          --noprovides \
          --answerdiff None \
          --answerclean None \
