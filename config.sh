@@ -7,7 +7,7 @@ set_variables () {
     SUDO_PATH="/etc/sudoers.d/wheel"
     WHEEL_OLD="%wheel ALL=(ALL) ALL"
     WHEEL_NEW="%wheel ALL=(ALL:ALL) NOPASSWD: ALL"
-    yay_git="/home/deck/yay-bin"
+    yay_git="\"$HOME\"/yay-bin"
 }
 
 disable_ro () {
@@ -54,12 +54,12 @@ install_yay () {
 install_programs () {
     # my programs
     # need to reinstall glibc for correct generating locales
-    su - deck -c "echo y | LANG=C yay -S \
+    su - "$USER" -c "echo y | LANG=C yay -S \
          --noprovides \
          --answerdiff None \
          --answerclean None \
          --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc glibc"
-    su - deck -c "echo y | LANG=C yay -S \
+    su - "$USER" -c "echo y | LANG=C yay -S \
          --overwrite "mc" \
          --noprovides \
          --answerdiff None \
