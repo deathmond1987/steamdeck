@@ -2,6 +2,12 @@
 set -euo pipefail
 set -x 
 
+check_root () {
+    if [[ "$EUID" -ne 0 ]]; then
+       echo "You must be root to do this." 1>&2
+       exit 1
+    fi
+}
 set_variables () {
     fakeroot_conf="/etc/ld.so.conf.d/fakeroot.conf"
     SUDO_PATH="/etc/sudoers.d/wheel"
@@ -75,16 +81,16 @@ enable_passwd () {
 }
 
 main () {
-     sudo su - 
-     set_variables
-     disable_ro
-     check_fakeroot_files
-     install_devel
-     disable_passwd
-     install_yay
-     install_programs
-     add_locale
-     enable_passwd
+    check_root
+    set_variables
+    disable_ro
+    check_fakeroot_files
+    install_devel
+    disable_passwd
+    install_yay
+    install_programs
+    add_locale
+    enable_passwd
 }
 
 main
