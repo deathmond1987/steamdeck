@@ -9,7 +9,6 @@ check_root () {
     fi
 }
 set_variables () {
-    fakeroot_conf="/etc/ld.so.conf.d/fakeroot.conf"
     SUDO_PATH="/etc/sudoers.d/wheel"
     WHEEL_OLD="%wheel ALL=(ALL) ALL"
     WHEEL_NEW="%wheel ALL=(ALL:ALL) NOPASSWD: ALL"
@@ -25,6 +24,7 @@ disable_ro () {
 
 check_fakeroot_files () {
     # clean fakeroot install
+    fakeroot_conf="/etc/ld.so.conf.d/fakeroot.conf"
     if [ -f "${fakeroot_conf}" ]; then
         rm -f "${fakeroot_conf}"
     fi
@@ -60,10 +60,12 @@ install_yay () {
 install_programs () {
     # my programs
     # need to reinstall glibc for correct generating locales
+    for mc_files in "/etc/mc/mc.default.keymap" "/etc/mc/mc.emacs.keymap"
+        do rm -f "$mc_files"
+    done 
     su - "$SUDO_USER" -c "echo y | LANG=C yay -S \
          --noprovides \
          --needed \
-         --overwrite "*" \
          --answerdiff None \
          --answerclean None \
          --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc glibc"   
