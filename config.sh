@@ -68,11 +68,16 @@ install_programs () {
          --needed \
          --answerdiff None \
          --answerclean None \
-         --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc glibc"   
+         --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc"   
 }
 
 add_locale () {
     # add locale
+    su - "$SUDO_USER" -c "echo y | LANG=C yay -S \
+         --noprovides \
+         --answerdiff None \
+         --answerclean None \
+         --mflags \"--noconfirm\" glibc"
     sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
     locale-gen
 }
