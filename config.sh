@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 set -x 
-
+sudo su - 
 set_variables () {
     fakeroot_conf="/etc/ld.so.conf.d/fakeroot.conf"
     SUDO_PATH="/etc/sudoers.d/wheel"
@@ -11,7 +11,7 @@ set_variables () {
 }
 
 disable_ro () {
-# check if system is ro and remount to rw
+    # check if system is ro and remount to rw
     if [ "$(steamos-readonly status)" = "enabled" ]; then
         steamos-readonly disable
     fi
@@ -54,13 +54,13 @@ install_yay () {
 install_programs () {
     # my programs
     # need to reinstall glibc for correct generating locales
-    su - "$USER" -c "echo y | LANG=C yay -S \
+    su - "$SUDO_USER" -c "echo y | LANG=C yay -S \
          --noprovides \
          --needed \
          --answerdiff None \
          --answerclean None \
          --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc glibc"
-    su - "$USER" -c "echo y | LANG=C yay -S \
+    su - "$SUDO_USER" -c "echo y | LANG=C yay -S \
          --overwrite "*" \
          --noprovides \
          --needed \
