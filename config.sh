@@ -60,7 +60,7 @@ install_programs () {
          --answerclean None \
          --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc glibc"
     su - "$USER" -c "echo y | LANG=C yay -S \
-         --overwrite "mc" \
+         --overwrite "*" \
          --noprovides \
          --answerdiff None \
          --answerclean None \
