@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 set -x 
-sudo su - 
+
 set_variables () {
     fakeroot_conf="/etc/ld.so.conf.d/fakeroot.conf"
     SUDO_PATH="/etc/sudoers.d/wheel"
@@ -40,7 +40,7 @@ install_yay () {
         rm -rf "${yay_git}"
     fi
     # yay install
-    su - deck -c "git clone https://aur.archlinux.org/yay-bin && \
+    su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin && \
          cd yay-bin && \
          yes | makepkg -si && \
          cd .. && \
@@ -81,6 +81,7 @@ enable_passwd () {
 }
 
 main () {
+     sudo su - 
      set_variables
      disable_ro
      check_fakeroot_files
