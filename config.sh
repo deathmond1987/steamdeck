@@ -56,12 +56,14 @@ install_programs () {
     # need to reinstall glibc for correct generating locales
     su - "$USER" -c "echo y | LANG=C yay -S \
          --noprovides \
+         --needed \
          --answerdiff None \
          --answerclean None \
          --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc glibc"
     su - "$USER" -c "echo y | LANG=C yay -S \
          --overwrite "*" \
          --noprovides \
+         --needed \
          --answerdiff None \
          --answerclean None \
          --mflags \"--noconfirm\" mc"     
