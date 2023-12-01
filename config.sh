@@ -73,8 +73,10 @@ install_programs () {
     echo "Installing additional apps..."
     # my programs
     # need to reinstall glibc for correct generating locales
-    for mc_files in "/etc/mc/mc.default.keymap" "/etc/mc/mc.emacs.keymap"; do 
-        rm -f "$mc_files"
+    for mc_files in "/etc/mc/mc.default.keymap" "/etc/mc/mc.emacs.keymap"; do
+        if [ -f "$mc_files" ]; then
+            rm -f "$mc_files"
+        fi
     done 
     su - "$SUDO_USER" -c "echo y | LANG=C yay -S \
          --noprovides \
