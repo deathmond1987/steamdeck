@@ -128,7 +128,8 @@ check_mitigations () {
                         break;;
                 [Nn]* ) break;;
                 * ) echo "Please answer yes or no.";;
-        esac
+            esac
+        done
     fi
 }
 
