@@ -26,6 +26,12 @@ disable_ro () {
         echo "steamos rw enabled"
     fi
 }
+############################
+## TO DO: 
+## update pacman.conf from repo
+## add pacman-key --init
+##     pacman-key --populate
+############################
 
 check_fakeroot_files () {
     # clean fakeroot install
