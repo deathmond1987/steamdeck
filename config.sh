@@ -20,8 +20,10 @@ check_steamos () {
 
 disable_ro () {
     # check if system is ro and remount to rw
+    echo "Checking fs ro/rw..."
     if [ "$(steamos-readonly status)" = "enabled" ]; then
         steamos-readonly disable
+        echo "steamos rw enabled"
     fi
 }
 
@@ -35,10 +37,12 @@ check_fakeroot_files () {
 
 install_devel () {
     # install minimal devel deps
+    echo "installing base-devel package..."
     pacman -S --needed --noconfirm --disable-download-timeout base-devel
 }
 
 disable_passwd () {
+    echo "Temporary disabling passwd check..."
     SUDO_PATH="/etc/sudoers.d/wheel"
     WHEEL_OLD="%wheel ALL=(ALL) ALL"
     WHEEL_NEW="%wheel ALL=(ALL:ALL) NOPASSWD: ALL"
@@ -47,6 +51,7 @@ disable_passwd () {
 }
 
 install_yay () {
+    echo "Installing yay..."
     yay_git="\"$HOME\"/yay-bin"
     # clean yay install
     if [ -d "${yay_git}" ]; then
@@ -65,6 +70,7 @@ install_yay () {
 }
 
 install_programs () {
+    echo "Installing additional apps..."
     # my programs
     # need to reinstall glibc for correct generating locales
     for mc_files in "/etc/mc/mc.default.keymap" "/etc/mc/mc.emacs.keymap"; do 
@@ -93,11 +99,13 @@ add_locale () {
 }
 
 enable_passwd () {
+    echo "Enabling asking passwd..."
     # enable asking password
     sed -i "s/$WHEEL_NEW/$WHEEL_OLD/g" "$SUDO_PATH"
 }
 
 check_mitigations () {
+    echo "Checking mitigations status..."
     # check mitigations=off
     # if not - adding option to kernel command line to disable mitigations
     grep . /sys/devices/system/cpu/vulnerabilities/*
@@ -128,6 +136,7 @@ main () {
 #    add_locale
     check_mitigations
     enable_passwd
+    echo "Done"
 }
 
 main
