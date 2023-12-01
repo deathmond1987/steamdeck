@@ -71,6 +71,8 @@ install_programs () {
          --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc"   
 }
 
+# deprecated
+# in steamos => 3.5.5 many locales added by default
 add_locale () {
     # add locale
     su - "$SUDO_USER" -c "echo y | LANG=C yay -S \
@@ -97,7 +99,8 @@ main () {
     disable_passwd
     install_yay
     install_programs
-    add_locale
+# deprecated
+#    add_locale
     enable_passwd
 }
 
