@@ -8,11 +8,14 @@ check_root () {
        exit 1
     fi
 }
-set_variables () {
-    SUDO_PATH="/etc/sudoers.d/wheel"
-    WHEEL_OLD="%wheel ALL=(ALL) ALL"
-    WHEEL_NEW="%wheel ALL=(ALL:ALL) NOPASSWD: ALL"
-    yay_git="\"$HOME\"/yay-bin"
+
+check_steamos () {
+    . /etc/os-release
+    if [ "$ID" != "steamos" ]; then
+        echo -e "This script for SteamOS only! Exiting..."
+        exit 1
+    fi
+
 }
 
 disable_ro () {
@@ -36,11 +39,15 @@ install_devel () {
 }
 
 disable_passwd () {
+    SUDO_PATH="/etc/sudoers.d/wheel"
+    WHEEL_OLD="%wheel ALL=(ALL) ALL"
+    WHEEL_NEW="%wheel ALL=(ALL:ALL) NOPASSWD: ALL"
     # avoid asking password
     sed -i "s/$WHEEL_OLD/$WHEEL_NEW/g" "$SUDO_PATH"
 }
 
 install_yay () {
+    yay_git="\"$HOME\"/yay-bin"
     # clean yay install
     if [ -d "${yay_git}" ]; then
         rm -rf "${yay_git}"
@@ -111,7 +118,6 @@ check_mitigations () {
 
 main () {
     check_root
-    set_variables
     disable_ro
     check_fakeroot_files
     install_devel
