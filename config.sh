@@ -95,7 +95,7 @@ check_mitigations () {
     # if not - adding option to kernel command line to disable mitigations
     grep . /sys/devices/system/cpu/vulnerabilities/*
     if grep -q "mitigations=off" /boot/efi/EFI/steamos ; then 
-        echo "mitigations disabled in grub config"
+        echo -e "\nmitigations=off in /boot/efi/EFI/steamos exist !\n"
     else
         while true; do
             read -p "Mitigation not found in grub config. enable mitigations=off ?" answer
