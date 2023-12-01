@@ -67,8 +67,8 @@ install_yay () {
 install_programs () {
     # my programs
     # need to reinstall glibc for correct generating locales
-    for mc_files in "/etc/mc/mc.default.keymap" "/etc/mc/mc.emacs.keymap"
-        do rm -f "$mc_files"
+    for mc_files in "/etc/mc/mc.default.keymap" "/etc/mc/mc.emacs.keymap"; do 
+        rm -f "$mc_files"
     done 
     su - "$SUDO_USER" -c "echo y | LANG=C yay -S \
          --noprovides \
