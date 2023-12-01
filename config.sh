@@ -90,11 +90,23 @@ enable_passwd () {
     sed -i "s/$WHEEL_NEW/$WHEEL_OLD/g" "$SUDO_PATH"
 }
 
-check_mitigraions () {
+check_mitigations () {
+    # check mitigations=off
+    # if not - adding option to kernel command line to disable mitigations
     grep . /sys/devices/system/cpu/vulnerabilities/*
-    echo -e "/nTo disable vulnerabilities patches add:/n"
-    echo -e "mitigations=off"
-    echo -e "to /etc/default/grub:GRUB_CMDLINE_LINUX_DEFAULT="
+    if grep -q "mitigations=off" /boot/efi/EFI/steamos ; then 
+        echo "mitigations disabled in grub config"
+    else
+        while true; do
+            read -p "Mitigation not found in grub config. enable mitigations=off ?" answer
+            case $answer in
+                [Yy]* ) sed -i 's/\bGRUB_CMDLINE_LINUX_DEFAULT="/&retbleed=off /' /etc/default/grub
+                        grub-mkconfig -o /boot/efi/EFI/steamos/grub.cfg
+                        break;;
+                [Nn]* ) break;;
+                * ) echo "Please answer yes or no.";;
+        esac
+    fi
 }
 
 main () {
@@ -108,6 +120,7 @@ main () {
     install_programs
 # deprecated
 #    add_locale
+    check_mitigations
     enable_passwd
 }
 
