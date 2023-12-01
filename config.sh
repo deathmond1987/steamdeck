@@ -100,7 +100,7 @@ check_mitigations () {
         while true; do
             read -p "Mitigation not found in grub config. enable mitigations=off ?" answer
             case $answer in
-                [Yy]* ) sed -i 's/\bGRUB_CMDLINE_LINUX_DEFAULT="/&retbleed=off /' /etc/default/grub
+                [Yy]* ) sed -i 's/\bGRUB_CMDLINE_LINUX_DEFAULT="/&mitigations=off /' /etc/default/grub
                         grub-mkconfig -o /boot/efi/EFI/steamos/grub.cfg
                         break;;
                 [Nn]* ) break;;
