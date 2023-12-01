@@ -90,6 +90,13 @@ enable_passwd () {
     sed -i "s/$WHEEL_NEW/$WHEEL_OLD/g" "$SUDO_PATH"
 }
 
+check_mitigraions () {
+    grep . /sys/devices/system/cpu/vulnerabilities/*
+    echo -e "/nTo disable vulnerabilities patches add:/n"
+    echo -e "mitigations=off"
+    echo -e "to /etc/default/grub:GRUB_CMDLINE_LINUX_DEFAULT="
+}
+
 main () {
     check_root
     set_variables
