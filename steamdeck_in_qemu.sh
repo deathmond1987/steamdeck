@@ -7,7 +7,7 @@ echo "./steamos.qcow2 file found. Loading SteamOS. If you need to reinstall Stea
 QEMU_PID=$(ps -aux | grep qemu | grep steamos | awk '{ print $2 }')
 
 if [ ! -z "$QEMU_PID" ]; then
-    echo "./steamos.qcow2 already in use. Killing qemu whis id $QEMU_ID"
+    echo "./steamos.qcow2 already in use. Killing qemu with $QEMU_PID pid"
     sudo kill "$QEMU_PID"
 fi
 
