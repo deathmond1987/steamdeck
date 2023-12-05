@@ -2,7 +2,7 @@
 
 set -xe
 
-echo "./steamos.qcow2 file found. Loading SteamOS. If you need to reinstall SteamOs - remove ./steamos.qcow2 file"
+#echo "./steamos.qcow2 file found. Loading SteamOS. If you need to reinstall SteamOs - remove ./steamos.qcow2 file"
 
 # get pid of qemu
 QEMU_PID=$(ps -aux | grep qemu | grep steamos | awk '{ print $2 }')
@@ -22,7 +22,7 @@ install_steamos () {
     # if there is no bz2 archive and img - loading steamos.img.bz2
     if [ ! -f "$STEAMDECK_BZ2_PATH" ] && [ ! -f "$STEAMDECK_IMG_PATH" ]; then
         echo "Downloading SteamOS recovery image..."
-        curl -o "$STEAMDECK_BZ2_PATH".bz2 https://steamdeck-images.steamos.cloud/recovery/steamdeck-recovery-4.img.bz2
+        curl -o "$STEAMDECK_BZ2_PATH" https://steamdeck-images.steamos.cloud/recovery/steamdeck-recovery-4.img.bz2
     fi
     # unpacking bz2 if there is no img
     if [ ! -f "$STEAMDECK_IMG_PATH" ]; then
@@ -44,8 +44,8 @@ install_steamos () {
                        -drive if=none,id=drive0,file=steamos.qcow2 \
                        -device virtio-net-pci,netdev=net0 \
                        -netdev user,id=net0,hostfwd=tcp::55555-:22 & sleep 3
-    
-    # if thin not first install we need to clear ssh known_hosts  
+
+    # if thin not first install we need to clear ssh known_hosts
     if grep "127.0.0.1]:55555" /home/"$USER"/.ssh/known_hosts; then
         echo "Detected old key in known_hosts. Removing"
         sed -i 's/.*127.0.0.1]:55555.*//g' /home/"$USER"/.ssh/known_hosts
@@ -67,23 +67,43 @@ install_steamos () {
         sed -i 's/.*zenity.*/true/g' /home/deck/tools/repair_device.sh
         # we does not want to reboot
         sed -i 's/.*cmd systemctl reboot.*/true/g' /home/deck/tools/repair_device.sh
+#  sudo steamos-readonly disable
+#        sudo sed -i 's/.*mount -o ro.*/mount -o rw "$ROOTFS_DEVICE" $dir/g' /usr/bin/steamos-chroot
+#        sudo cp -a /usr/bin/steamos-chroot /home/deck/
+#sudo sed -i 's/.*mount -o ro.*/mount -o rw "$ROOTFS_DEVICE" $dir/g' /home/deck/steamos-chroot
+#  sudo umount -l /etc
+        echo -e '[Autologin]\nSession=plasma.desktop' > /home/deck/steamos.conf
+        sudo chown root:root /home/deck/steamos.conf
+#  sudo steamos-readonly enable
         # executing install script
         /home/deck/tools/repair_reimage.sh
-        sudo steamos-chroot --disk /dev/nvme0n1 --partset A -- "steamos-readonly disable"
-        sudo steamos-chroot --disk /dev/nvme0n1 --partset A -- "echo '[Autologin]' > /etc/sddm.conf.d/steamos.conf"
-        sudo steamos-chroot --disk /dev/nvme0n1 --partset A -- "echo 'Session=plasma.desktop' >> /etc/sddm.conf.d/steamos.conf"
-        sudo steamos-chroot --disk /dev/nvme0n1 --partset A -- "steamos-readonly enable"
-        sudo steamos-chroot --disk /dev/nvme0n1 --partset B -- "steamos-readonly disable"
-        sudo steamos-chroot --disk /dev/nvme0n1 --partset B -- "echo '[Autologin]' > /etc/sddm.conf.d/steamos.conf"
-        sudo steamos-chroot --disk /dev/nvme0n1 --partset B -- "echo 'Session=plasma.desktop' >> /etc/sddm.conf.d/steamos.conf"
-        sudo steamos-chroot --disk /dev/nvme0n1 --partset B -- "steamos-readonly enable"
-#        sudo steamos-chroot --disk /dev/nvme0n1 --partset other -- 'steamos-readonly' 'disable'
-#        sudo steamos-chroot --disk /dev/nvme0n1 --partset other -- 'echo' '[Autologin]' '>' '/etc/sddm.conf.d/steamos.conf'
-#        sudo steamos-chroot --disk /dev/nvme0n1 --partset other -- 'echo' 'Session=plasma.desktop' '>>' '/etc/sddm.conf.d/steamos.conf'
-#        sudo steamos-chroot --disk /dev/nvme0n1 --partset other -- 'steamos-readonly' 'enable'
+        mkdir /home/deck/mnt
+        sudo mount -o rw /dev/nvme0n1p4 /home/deck/mnt
+        sudo cp -a /home/deck/steamos.conf /home/deck/mnt/etc/sddm.conf.d/
+        sudo umount -l /home/deck/mnt
+        sudo mount -o rw /dev/nvme0n1p5 /home/deck/mnt
+        sudo cp -a /home/deck/steamos.conf /home/deck/mnt/etc/sddm.conf.d/
+        sudo umount -l /home/deck/mnt
+#        sudo /home/deck/steamos-chroot --disk /dev/nvme0n1 --partset A -- 'echo' '[Autologin]' > '/etc/sddm.conf.d/steamos.conf' && 'echo' 'Session=plasma.desktop' >> '/etc/sddm.conf.d/steamos.conf'
+#        sudo /home/deck/steamos-chroot --disk /dev/nvme0n1 --partset B -- 'echo' '[Autologin]' '>' '/etc/sddm.conf.d/steamos.conf' '&&' 'echo' 'Session=plasma.desktop' '>>' '/etc/sddm.conf.d/steamos.conf'
+#        sudo steamos-chroot --disk /dev/nvme0n1 --partset A -- 'echo' '[Autologin]' '>' '/etc/sddm.conf.d/steamos.conf'
+#        sudo steamos-chroot --disk /dev/nvme0n1 --partset A -- 'echo' 'Session=plasma.desktop' '>>' '/etc/sddm.conf.d/steamos.conf'
+#        sudo steamos-chroot --disk /dev/nvme0n1 --partset A -- "steamos-readonly enable'
+#        sudo steamos-chroot --disk /dev/nvme0n1 --partset B -- 'mount' '-o' 'remount,rw' '/' '/'
+#        sudo steamos-chroot --disk /dev/nvme0n1 --partset B -- 'echo' '[Autologin]' '>' '/etc/sddm.conf.d/steamos.conf'
+#        sudo steamos-chroot --disk /dev/nvme0n1 --partset B -- 'echo' 'Session=plasma.desktop' '>>' '/etc/sddm.conf.d/steamos.conf'
+#        sudo steamos-chroot --disk /dev/nvme0n1 --partset B -- "steamos-readonly enable"
+
+echo "
+sudo steamos-chroot --disk /dev/nvme0n1 --partset other -- \"steamos-readonly disable\"
+sudo steamos-chroot --disk /dev/nvme0n1 --partset other -- \"echo [Autologin] > /etc/sddm.conf.d/steamos.conf\"
+sudo steamos-chroot --disk /dev/nvme0n1 --partset other -- \"echo Session=plasma.desktop >> /etc/sddm.conf.d/steamos.conf\"
+sudo steamos-chroot --disk /dev/nvme0n1 --partset other -- \"steamos-readonly enable" > /home/deck/post-install.sh
 
 #       sudo systemctl poweroff
 EOF
+
+
 exit 1
     cp "$EDK_PATH"/OVMF_VARS.fd ./OVMF_VARS.fd
 }
@@ -104,5 +124,7 @@ if [ -f ./steamos.qcow2 ]; then
     run_steamos
 else
     install_steamos
+    run_steamos
+fi
     run_steamos
 fi
