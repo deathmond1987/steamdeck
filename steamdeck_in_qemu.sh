@@ -69,26 +69,26 @@ install_steamos () {
         sed -i 's/.*zenity.*/true/g' /home/deck/tools/repair_device.sh
         # we does not want to reboot
         sed -i 's/.*cmd systemctl reboot.*/true/g' /home/deck/tools/repair_device.sh
-                # creating sddm config overwrite
+        # creating sddm config overwrite
         echo -e '[Autologin]\nSession=plasma.desktop' > /home/deck/steamos.conf
         sudo chown root:root /home/deck/steamos.conf
         # executing install script
         /home/deck/tools/repair_reimage.sh
-                # creating mountpoint
+        # creating mountpoint
         mkdir /home/deck/mnt
-                # mounting btrfs root A
+        # mounting btrfs root A
         sudo mount -o rw /dev/nvme0n1p4 /home/deck/mnt
-                # disabling btrfs ro property for A
+        # disabling btrfs ro property for A
         sudo btrfs property set /home/deck/mnt ro false
-                # Copying new sddm config to side A
-                sudo cp -a /home/deck/steamos.conf /home/deck/mnt/etc/sddm.conf.d/
-                # unmounting side A
+        # Copying new sddm config to side A
+        sudo cp -a /home/deck/steamos.conf /home/deck/mnt/etc/sddm.conf.d/
+        # unmounting side A
         sudo umount -l /home/deck/mnt
-                # lazymount await
+        # lazymount await
         sleep 3
-                # for side B
+        # for side B
         sudo mount -o rw /dev/nvme0n1p5 /home/deck/mnt
-                sudo btrfs property set /home/deck/mnt ro false
+        sudo btrfs property set /home/deck/mnt ro false
         sudo cp -a /home/deck/steamos.conf /home/deck/mnt/etc/sddm.conf.d/
         sudo umount -l /home/deck/mnt
         sleep 3
@@ -106,7 +106,7 @@ install_steamos () {
 ## По умолчанию включается игровой режим который не может загрузиться в qemu и становится неработоспособной
 ## Необходимо либо патчить вышеуказанным образом либо включать sshd (который по умолчанию всегда выключен) и вносить правки в sddm вручную
 ######################################################################################################################################
-                # without exit - this script is wailing with 255 code
+        # without exit - this script is wailing with 255 code
         nohup sudo bash -c "sleep 3 && systemctl poweroff" &
         exit
 EOF
