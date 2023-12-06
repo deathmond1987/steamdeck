@@ -2,7 +2,7 @@
 
 set -xe
 
-#echo "./steamos.qcow2 file found. Loading SteamOS. If you need to reinstall SteamOs - remove ./steamos.qcow2 file"
+IMAGE_URL=https://steamdeck-images.steamos.cloud/recovery/steamdeck-repair-20231127.10-3.5.7.img.bz2
 
 # get pid of qemu
 QEMU_PID=$(ps -aux | grep qemu | grep steamos | awk '{ print $2 }')
@@ -22,7 +22,7 @@ install_steamos () {
     # if there is no bz2 archive and img - loading steamos.img.bz2
     if [ ! -f "$STEAMDECK_BZ2_PATH" ] && [ ! -f "$STEAMDECK_IMG_PATH" ]; then
         echo "Downloading SteamOS recovery image..."
-        curl -o "$STEAMDECK_BZ2_PATH" https://steamdeck-images.steamos.cloud/recovery/steamdeck-recovery-4.img.bz2
+        curl -o "$STEAMDECK_BZ2_PATH" ${IMAGE_URL:-https://steamdeck-images.steamos.cloud/recovery/steamdeck-recovery-4.img.bz2}
     fi
     # unpacking bz2 if there is no img
     if [ ! -f "$STEAMDECK_IMG_PATH" ]; then
@@ -65,32 +65,40 @@ install_steamos () {
     # executing in vm
     ssh deck@127.0.0.1 -p 55555 <<-EOF
         set -ex
+        DECK_DIR=/home/deck
+        MNT_DIR="$DECK_DIR"/mnt
+
         # removing zenity from install script. We do not have graphical interface
-        sed -i 's/.*zenity.*/true/g' /home/deck/tools/repair_device.sh
+        sed -i 's/.*zenity.*/true/g' "$DECK_DIR"/tools/repair_device.sh
         # we does not want to reboot
-        sed -i 's/.*cmd systemctl reboot.*/true/g' /home/deck/tools/repair_device.sh
+        sed -i 's/.*cmd systemctl reboot.*/true/g' "$DECK_DIR"/tools/repair_device.sh
         # creating sddm config overwrite
-        echo -e '[Autologin]\nSession=plasma.desktop' > /home/deck/steamos.conf
-        sudo chown root:root /home/deck/steamos.conf
+        echo -e '[Autologin]\nSession=plasma.desktop' > "$DECK_DIR"/steamos.conf
+        sudo chown root:root "$DECK_DIR"/steamos.conf
         # executing install script
-        /home/deck/tools/repair_reimage.sh
+        "$DECK_DIR"/tools/repair_reimage.sh
         # creating mountpoint
-        mkdir /home/deck/mnt
+        mkdir -p "$MNT_DIR"
         # mounting btrfs root A
-        sudo mount -o rw /dev/nvme0n1p4 /home/deck/mnt
+        sudo mount -o rw /dev/nvme0n1p4 $MNT_DIR
         # disabling btrfs ro property for A
-        sudo btrfs property set /home/deck/mnt ro false
+        sudo btrfs property set "$MNT_DIR" ro false
         # Copying new sddm config to side A
-        sudo cp -a /home/deck/steamos.conf /home/deck/mnt/etc/sddm.conf.d/
+        sudo cp -f "$DECK_DIR"/steamos.conf "$MNT_DIR"/etc/sddm.conf.d/
+        sudo cp -f "$DECK_DIR"/steamos.conf "$MNT_DIR"/etc/sddm.conf.d/zz-steamos-autologin.conf
+        # enable ssh service
+        sudo cp "$MNT_DIR"/usr/lib/systemd/system/sshd.service "$MNT_DIR"/etc/systemd/system/multi-user.target.wants/sshd.service
         # unmounting side A
-        sudo umount -l /home/deck/mnt
+        sudo umount -l "$MNT_DIR"
         # lazymount await
         sleep 3
         # for side B
-        sudo mount -o rw /dev/nvme0n1p5 /home/deck/mnt
-        sudo btrfs property set /home/deck/mnt ro false
-        sudo cp -a /home/deck/steamos.conf /home/deck/mnt/etc/sddm.conf.d/
-        sudo umount -l /home/deck/mnt
+        sudo mount -o rw /dev/nvme0n1p5 "$MNT_DIR"
+        sudo btrfs property set "$MNT_DIR" ro false
+        sudo cp -f "$DECK_DIR"/steamos.conf "$MNT_DIR"/etc/sddm.conf.d/
+        sudo cp -f "$DECK_DIR"/steamos.conf "$MNT_DIR"/etc/sddm.conf.d/zz-steamos-autologin.conf
+        sudo cp "$MNT_DIR"/usr/lib/systemd/system/sshd.service "$MNT_DIR"/etc/systemd/system/multi-user.target.wants/sshd.service
+        sudo umount -l "$MNT_DIR"
         sleep 3
 ######################################################################################################################################
 ## У steamdeck AB ro файловая система btrfs.
@@ -106,12 +114,16 @@ install_steamos () {
 ## По умолчанию включается игровой режим который не может загрузиться в qemu и становится неработоспособной
 ## Необходимо либо патчить вышеуказанным образом либо включать sshd (который по умолчанию всегда выключен) и вносить правки в sddm вручную
 ######################################################################################################################################
-        # without exit - this script is wailing with 255 code
+                # without exit - this script is wailing with 255 code
+        sed -i 's/quiet//g' /etc/default/grub
+        sed -i 's/splash//g' /etc/default/grub 
+        
+        exit
         nohup sudo bash -c "sleep 3 && systemctl poweroff" &
         exit
 EOF
 
-    while ps -aux | grep qemu | grep steamos 2>&1 >/dev/null ; do
+    while ps -aux | grep qemu | grep steamos >/dev/null 2>&1 ; do
         echo -e "Looks like VM is not shutdown for now. Waiting to gracefully shutdown..."
         sleep 3
     done
@@ -127,12 +139,12 @@ run_steamos () {
                        -drive if=pflash,format=raw,file=./OVMF_VARS.fd \
                        -device nvme,drive=drive0,serial=badbeef \
                        -drive if=none,id=drive0,file=steamos.qcow2 \
-#                       -drive if=virtio,file=steamos.qcow2 \
                        -device virtio-net-pci,netdev=net0 \
                        -netdev user,id=net0,hostfwd=tcp::55555-:22 --daemonize
 }
 
 if [ -f ./steamos.qcow2 ]; then
+    echo "./steamos.qcow2 file found. Loading SteamOS. If you need to reinstall SteamOs - remove ./steamos.qcow2 file"
     run_steamos
 else
     install_steamos
