@@ -63,7 +63,7 @@ install_steamos () {
     echo ""
 
     # executing in vm
-    ssh deck@127.0.0.1 -p 55555 <<-EOF
+    ssh deck@127.0.0.1 -p 55555 <<-'EOF'
         set -ex
         DECK_DIR=/home/deck
         MNT_DIR="$DECK_DIR"/mnt
@@ -115,10 +115,9 @@ install_steamos () {
 ## Необходимо либо патчить вышеуказанным образом либо включать sshd (который по умолчанию всегда выключен) и вносить правки в sddm вручную
 ######################################################################################################################################
                 # without exit - this script is wailing with 255 code
-        sed -i 's/quiet//g' /etc/default/grub
-        sed -i 's/splash//g' /etc/default/grub 
-        
-        exit
+#        sed -i 's/quiet//g' /etc/default/grub
+#        sed -i 's/splash//g' /etc/default/grub
+                exit 1
         nohup sudo bash -c "sleep 3 && systemctl poweroff" &
         exit
 EOF
