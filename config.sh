@@ -54,6 +54,12 @@ disable_passwd () {
     sed -i "s/$WHEEL_OLD/$WHEEL_NEW/g" "$SUDO_PATH"
 }
 
+enable_passwd () {
+    echo "Enabling asking passwd..."
+    # enable asking password
+    sed -i "s/$WHEEL_NEW/$WHEEL_OLD/g" "$SUDO_PATH"
+}
+
 install_yay () {
     if ! command -v yay ; then 
         echo "Installing yay..."
@@ -116,22 +122,18 @@ check_mitigations () {
     fi
 }
 
-enable_passwd () {
-    echo "Enabling asking passwd..."
-    # enable asking password
-    sed -i "s/$WHEEL_NEW/$WHEEL_OLD/g" "$SUDO_PATH"
-}
-
 main () {
     check_root
     disable_ro
     init_pacman
     install_devel
     disable_passwd
+    trap 'enable_passwd' ERR
     install_yay
     install_programs
-    check_mitigations
     enable_passwd
+    trap '' ERR
+    check_mitigations
     echo "Done"
 }
 
