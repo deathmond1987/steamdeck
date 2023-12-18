@@ -33,13 +33,9 @@ disable_ro () {
 ##     pacman-key --populate
 ############################
 
-#this is bad idea
-check_fakeroot_files () {
-    # clean fakeroot install
-    fakeroot_conf="/etc/ld.so.conf.d/fakeroot.conf"
-    if [ -f "${fakeroot_conf}" ]; then
-        rm -f "${fakeroot_conf}"
-    fi
+init_pacman () {
+    pacman-key --init
+    pacman-key --populate
 }
 
 install_devel () {
@@ -84,31 +80,17 @@ install_programs () {
     echo "Installing additional apps..."
     # my programs
     # THIS IS ALSO BAD IDEA 
-    for mc_files in "/etc/mc/mc.default.keymap" "/etc/mc/mc.emacs.keymap"; do
-        if [ -f "$mc_files" ]; then
-            rm -f "$mc_files"
-        fi
-    done 
+    #for mc_files in "/etc/mc/mc.default.keymap" "/etc/mc/mc.emacs.keymap"; do
+    #    if [ -f "$mc_files" ]; then
+    #        rm -f "$mc_files"
+    #    fi
+    #done 
     su - "$SUDO_USER" -c "echo y | LANG=C yay -S \
          --noprovides \
          --needed \
          --answerdiff None \
          --answerclean None \
          --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc"   
-}
-
-# deprecated
-# in steamos => 3.5.5 many locales added by default
-add_locale () {
-    # add locale
-    su - "$SUDO_USER" -c "echo y | LANG=C yay -S \
-         --noprovides \
-         --answerdiff None \
-         --answerclean None \
-         --mflags \"--noconfirm\" glibc"
-    sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
-    sed -i 's/#ru_RU.UTF-8 UTF-8/ru_RU.UTF-8 UTF-8/g' /etc/locale.gen
-    locale-gen
 }
 
 enable_passwd () {
@@ -141,13 +123,11 @@ check_mitigations () {
 main () {
     check_root
     disable_ro
-    check_fakeroot_files
+    init_pacman
     install_devel
     disable_passwd
     install_yay
     install_programs
-# deprecated
-#    add_locale
     check_mitigations
     enable_passwd
     echo "Done"
