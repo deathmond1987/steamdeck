@@ -29,8 +29,6 @@ disable_ro () {
 ############################
 ## TO DO: 
 ## update pacman.conf from repo
-## add pacman-key --init
-##     pacman-key --populate
 ############################
 
 init_pacman () {
