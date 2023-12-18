@@ -61,7 +61,7 @@ enable_passwd () {
 }
 
 install_yay () {
-    if ! command -v yay ; then 
+    if ! command -v yay >/dev/null 2>&1 ; then 
         echo "Installing yay..."
         yay_git="\"$HOME\"/yay-bin"
         # clean yay install
@@ -79,7 +79,7 @@ install_yay () {
             yay --editmenu --nodiffmenu --save"
         rm -rf "$yay_git"
     else
-        echo "yay found"
+        echo "yay already installed. Skipping..."
     fi
 }
 
