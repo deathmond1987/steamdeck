@@ -8,11 +8,11 @@ red=$(tput setaf 1)
 green=$(tput setaf 2)
 tan=$(tput setaf 3)
 
-success() { printf "${green}✔     %s${reset}\n" "$@"
+success() { printf "${green}    ✔ %s${reset}\n" "$@"
 }
-error() { printf "${red}✖     %s${reset}\n" "$@"
+error() { printf "${red}    ✖ %s${reset}\n" "$@"
 }
-warn() { printf "${tan}➜     %s${reset}\n" "$@"
+warn() { printf "${tan}    ➜ %s${reset}\n" "$@"
 }
 
 ########### BODY ############
@@ -125,7 +125,7 @@ check_mitigations () {
     #grep . /sys/devices/system/cpu/vulnerabilities/*
     GRUB_CONF=/boot/efi/EFI/steamos/grub.cfg
     if grep -q "mitigations=off" "$GRUB_CONF" ; then 
-        success "\nmitigations=off in "$GRUB_CONF" exist !\n"
+        success "mitigations=off in "$GRUB_CONF" exist !"
     else
         while true; do
             read -p "Mitigation not found in grub config. enable mitigations=off ? " answer
