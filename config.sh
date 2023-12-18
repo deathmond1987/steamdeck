@@ -70,7 +70,6 @@ install_yay () {
          cd .. && \
          rm -rf yay-bin && \
          yay -Y --gendb && \
-#         yes | yay -Syu --devel && \
          yay -Y --devel --save && \
          yay --editmenu --nodiffmenu --save"
 }
