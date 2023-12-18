@@ -52,6 +52,13 @@ init_pacman () {
     pacman-key --populate
     pacman -Sy
     success "Done"
+
+    if [ ! -f $HOME/pacman.conf ]; then
+        rm -rf /var/cache/pacman/pkg/*
+        pacman -Sw pacman
+        tar -xf /var/cache/pacman/pkg/pacman*.pkg.tar.zst etc/pacman.conf -C "$HOME" --strip-components 1
+    fi
+    
 }
 
 install_devel () {
