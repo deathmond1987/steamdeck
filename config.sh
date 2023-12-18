@@ -1,10 +1,36 @@
 #!/usr/bin/env bash
+########### opts ###########
 set -euo pipefail
-set -x 
+# set -x 
+
+bold=$(tput bold)
+underline=$(tput sgr 0 1)
+reset=$(tput sgr0)
+
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+white=$(tput setaf 7)
+tan=$(tput setaf 3)
+blue=$(tput setaf 6)
+
+debug() { printf "${white}%s${reset}\n" "$@"
+}
+info() { printf "${white}➜ %s${reset}\n" "$@"
+}
+success() { printf "${green}✔ %s${reset}\n" "$@"
+}
+error() { printf "${red}✖ %s${reset}\n" "$@"
+}
+warn() { printf "${tan}➜ %s${reset}\n" "$@"
+}
+note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@"
+}
+
+########### BODY ############
 
 check_root () {
     if [[ "$EUID" -ne 0 ]]; then
-       echo "You must be root to do this." 1>&2
+       error "You must be root to do this." 1>&2
        exit 1
     fi
 }
@@ -12,7 +38,7 @@ check_root () {
 check_steamos () {
     . /etc/os-release
     if [ "$ID" != "steamos" ]; then
-        echo -e "This script for SteamOS only! Exiting..."
+        error "This script for SteamOS only! Exiting..."
         exit 1
     fi
 
@@ -20,10 +46,10 @@ check_steamos () {
 
 disable_ro () {
     # check if system is ro and remount to rw
-    echo "Checking fs ro/rw..."
+    warn "Checking fs ro/rw..."
     if [ "$(steamos-readonly status)" = "enabled" ]; then
         steamos-readonly disable
-        echo "steamos rw enabled"
+        success "steamos rw enabled"
     fi
 }
 ############################
@@ -32,19 +58,22 @@ disable_ro () {
 ############################
 
 init_pacman () {
+    warn "initializing pacman DB"
     pacman-key --init
     pacman-key --populate
     pacman -Sy
+    success "Done"
 }
 
 install_devel () {
     # install minimal devel deps
-    echo "installing base-devel package..."
+    warn "installing base-devel package..."
     pacman -S --needed --noconfirm --disable-download-timeout base-devel
+    success "Done"
 }
 
 disable_passwd () {
-    echo "Temporary disabling passwd check..."
+    warn "Temporary disabling passwd check..."
     SUDO_PATH="/etc/sudoers.d/wheel"
     WHEEL_OLD="%wheel ALL=(ALL) ALL"
     WHEEL_NEW="%wheel ALL=(ALL:ALL) NOPASSWD: ALL"
@@ -53,14 +82,14 @@ disable_passwd () {
 }
 
 enable_passwd () {
-    echo "Enabling asking passwd..."
+    warn "Enabling asking passwd..."
     # enable asking password
     sed -i "s/$WHEEL_NEW/$WHEEL_OLD/g" "$SUDO_PATH"
 }
 
 install_yay () {
     if ! command -v yay >/dev/null 2>&1 ; then 
-        echo "Installing yay..."
+        warn "Installing yay..."
         yay_git="\"$HOME\"/yay-bin"
         # clean yay install
         if [ -d "${yay_git}" ]; then
@@ -76,13 +105,14 @@ install_yay () {
             yay -Y --devel --save && \
             yay --editmenu --nodiffmenu --save"
         rm -rf "$yay_git"
+        success "Done"
     else
-        echo "yay already installed. Skipping..."
+        success "yay already installed. Skipping..."
     fi
 }
 
 install_programs () {
-    echo "Installing additional apps..."
+    warn "Installing additional apps..."
     # my programs
     # THIS IS ALSO BAD IDEA 
     #for mc_files in "/etc/mc/mc.default.keymap" "/etc/mc/mc.emacs.keymap"; do
@@ -96,10 +126,11 @@ install_programs () {
          --answerdiff None \
          --answerclean None \
          --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc"   
+    success "Done"
 }
 
 check_mitigations () {
-    echo "Checking mitigations status..."
+    warn "Checking mitigations status..."
     # check mitigations=off
     # if not - adding option to kernel command line to disable mitigations
     #grep . /sys/devices/system/cpu/vulnerabilities/*
@@ -114,10 +145,11 @@ check_mitigations () {
                         grub-mkconfig -o "$GRUB_CONF"
                         break;;
                 [Nn]* ) break;;
-                * ) echo "Please answer yes or no.";;
+                * ) error "Please answer yes or no.";;
             esac
         done
     fi
+    success "Done"
 }
 
 main () {
@@ -132,7 +164,6 @@ main () {
     enable_passwd
     trap '' ERR
     check_mitigations
-    echo "Done"
 }
 
 main
