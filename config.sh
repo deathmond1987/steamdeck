@@ -36,6 +36,7 @@ disable_ro () {
 init_pacman () {
     pacman-key --init
     pacman-key --populate
+    pacman -Sy
 }
 
 install_devel () {
