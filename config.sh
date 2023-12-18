@@ -57,21 +57,25 @@ disable_passwd () {
 }
 
 install_yay () {
-    echo "Installing yay..."
-    yay_git="\"$HOME\"/yay-bin"
-    # clean yay install
-    if [ -d "${yay_git}" ]; then
-        rm -rf "${yay_git}"
+    if ! command -v yay ; then 
+        echo "Installing yay..."
+        yay_git="\"$HOME\"/yay-bin"
+        # clean yay install
+        if [ -d "${yay_git}" ]; then
+            rm -rf "${yay_git}"
+        fi
+        # yay install
+        su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin && \
+            cd yay-bin && \
+            yes | makepkg -si && \
+            cd .. && \
+            rm -rf yay-bin && \
+            yay -Y --gendb && \
+            yay -Y --devel --save && \
+            yay --editmenu --nodiffmenu --save"
+    else
+        echo "yay found"
     fi
-    # yay install
-    su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin && \
-         cd yay-bin && \
-         yes | makepkg -si && \
-         cd .. && \
-         rm -rf yay-bin && \
-         yay -Y --gendb && \
-         yay -Y --devel --save && \
-         yay --editmenu --nodiffmenu --save"
 }
 
 install_programs () {
