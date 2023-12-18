@@ -87,7 +87,7 @@ install_programs () {
     #    fi
     #done 
     su - "$SUDO_USER" -c "echo y | LANG=C yay -S \
-         --noprovides \
+         --provides=false \
          --needed \
          --answerdiff None \
          --answerclean None \
