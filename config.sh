@@ -104,7 +104,7 @@ check_mitigations () {
     echo "Checking mitigations status..."
     # check mitigations=off
     # if not - adding option to kernel command line to disable mitigations
-    grep . /sys/devices/system/cpu/vulnerabilities/*
+    #grep . /sys/devices/system/cpu/vulnerabilities/*
     GRUB_CONF=/boot/efi/EFI/steamos/grub.cfg
     if grep -q "mitigations=off" "$GRUB_CONF" ; then 
         echo -e "\nmitigations=off in "$GRUB_CONF" exist !\n"
