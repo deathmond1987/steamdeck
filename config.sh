@@ -54,9 +54,12 @@ init_pacman () {
     success "Done"
 
     if [ ! -f $HOME/pacman.conf ]; then
+        warn "pacman.conf not found in $HOME dir"
+        warn "Downloading latest pacman package config..."
         rm -rf /var/cache/pacman/pkg/*
         pacman -Sw --noconfirm pacman
         tar -xf /var/cache/pacman/pkg/pacman*.pkg.tar.zst etc/pacman.conf -C "$HOME" --strip-components 1
+        success "Done"
     fi
     
 }
