@@ -2,28 +2,17 @@
 ########### opts ###########
 set -euo pipefail
 # set -x 
-
-bold=$(tput bold)
-underline=$(tput sgr 0 1)
 reset=$(tput sgr0)
 
 red=$(tput setaf 1)
 green=$(tput setaf 2)
-white=$(tput setaf 7)
 tan=$(tput setaf 3)
-blue=$(tput setaf 6)
 
-debug() { printf "${white}%s${reset}\n" "$@"
+success() { printf "${green}✔     %s${reset}\n" "$@"
 }
-info() { printf "${white}➜ %s${reset}\n" "$@"
+error() { printf "${red}✖     %s${reset}\n" "$@"
 }
-success() { printf "${green}✔ %s${reset}\n" "$@"
-}
-error() { printf "${red}✖ %s${reset}\n" "$@"
-}
-warn() { printf "${tan}➜ %s${reset}\n" "$@"
-}
-note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@"
+warn() { printf "${tan}➜     %s${reset}\n" "$@"
 }
 
 ########### BODY ############
