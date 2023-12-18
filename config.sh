@@ -58,7 +58,7 @@ init_pacman () {
         warn "Downloading latest pacman package config..."
         rm -rf /var/cache/pacman/pkg/*
         pacman -Sw --noconfirm pacman
-        tar -xf /var/cache/pacman/pkg/pacman*.pkg.tar.zst etc/pacman.conf -C "$HOME" --strip-components 1
+        tar -xf /var/cache/pacman/pkg/pacman*.pkg.tar.zst etc/pacman.conf -C /home/"$SUDO_USER" --strip-components 1
         success "Done"
     fi
     
