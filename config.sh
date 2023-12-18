@@ -33,6 +33,7 @@ disable_ro () {
 ##     pacman-key --populate
 ############################
 
+#this is bad idea
 check_fakeroot_files () {
     # clean fakeroot install
     fakeroot_conf="/etc/ld.so.conf.d/fakeroot.conf"
@@ -73,6 +74,7 @@ install_yay () {
             yay -Y --gendb && \
             yay -Y --devel --save && \
             yay --editmenu --nodiffmenu --save"
+        rm -rf "$yay_git"
     else
         echo "yay found"
     fi
@@ -81,7 +83,7 @@ install_yay () {
 install_programs () {
     echo "Installing additional apps..."
     # my programs
-    # need to reinstall glibc for correct generating locales
+    # THIS IS ALSO BAD IDEA 
     for mc_files in "/etc/mc/mc.default.keymap" "/etc/mc/mc.emacs.keymap"; do
         if [ -f "$mc_files" ]; then
             rm -f "$mc_files"
