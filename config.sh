@@ -55,7 +55,7 @@ init_pacman () {
 
     if [ ! -f $HOME/pacman.conf ]; then
         rm -rf /var/cache/pacman/pkg/*
-        pacman -Sw pacman
+        pacman -Sw --noconfirm pacman
         tar -xf /var/cache/pacman/pkg/pacman*.pkg.tar.zst etc/pacman.conf -C "$HOME" --strip-components 1
     fi
     
