@@ -136,7 +136,7 @@ check_mitigations () {
     #grep . /sys/devices/system/cpu/vulnerabilities/*
     GRUB_CONF=/boot/efi/EFI/steamos/grub.cfg
     if grep -q "mitigations=off" "$GRUB_CONF" ; then 
-        echo -e "\nmitigations=off in "$GRUB_CONF" exist !\n"
+        success "\nmitigations=off in "$GRUB_CONF" exist !\n"
     else
         while true; do
             read -p "Mitigation not found in grub config. enable mitigations=off ? " answer
