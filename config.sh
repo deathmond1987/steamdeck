@@ -53,21 +53,21 @@ init_pacman () {
     pacman -Sy
     success "Done"
 
-    if [ ! -f $HOME/pacman.conf ]; then
-        # vavle playing with repo links. enshure that we have latest repo links
-        warn "pacman.conf not found in $HOME dir"
-        warn "Downloading latest pacman package config..."
-        rm -rf /var/cache/pacman/pkg/*
-        pacman -Sw --noconfirm pacman
-        tar -xf /var/cache/pacman/pkg/pacman*.pkg.tar.zst \
-            etc/pacman.conf \
-            -C /home/"$SUDO_USER" \
-            --strip-components 1 \
-            --numeric-owner
-        mv /etc/pacman.conf /etc/pacman.conf.old
-        cp /home/"$SUDO_USER"/pacman.conf /etc/
-        success "Done"
-    fi
+#    if [ ! -f $HOME/pacman.conf ]; then
+#        # vavle playing with repo links. enshure that we have latest repo links
+#        warn "pacman.conf not found in $HOME dir"
+#        warn "Downloading latest pacman package config..."
+#        rm -rf /var/cache/pacman/pkg/*
+#        pacman -Sw --noconfirm pacman
+#        tar -xf /var/cache/pacman/pkg/pacman*.pkg.tar.zst \
+#            etc/pacman.conf \
+#            -C /home/"$SUDO_USER" \
+#            --strip-components 1 \
+#            --numeric-owner
+#        mv /etc/pacman.conf /etc/pacman.conf.old
+#        cp /home/"$SUDO_USER"/pacman.conf /etc/
+#        success "Done"
+#    fi
     
 }
 
