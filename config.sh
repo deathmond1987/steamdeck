@@ -33,6 +33,7 @@ check_steamos () {
 
 }
 
+# or maybe just use user env. maybe brew or nix...
 disable_ro () {
     # check if system is ro and remount to rw
     warn "Checking fs ro/rw..."
