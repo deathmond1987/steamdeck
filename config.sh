@@ -161,6 +161,7 @@ check_mitigations () {
 
 main () {
     check_root
+    check_steamos
     disable_ro
     init_pacman
     install_devel
