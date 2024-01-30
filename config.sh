@@ -37,7 +37,8 @@ check_steamos () {
 disable_ro () {
     # check if system is ro and remount to rw
     warn "Checking fs ro/rw..."
-    if [ "$(steamos-readonly status)" = "enabled" ]; then
+    fs_status=$(steamos-readonly status)
+    if [ "$fs_status" = "enabled" ]; then
         steamos-readonly disable
         success "steamos rw enabled"
     fi
