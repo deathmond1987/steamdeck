@@ -110,8 +110,7 @@ install_yay () {
             cd .. && \
             rm -rf yay-bin && \
             yay -Y --gendb && \
-            yay -Y --devel --save && \
-            yay --editmenu --nodiffmenu --save"
+            yay -Y --devel --save"
         rm -rf "$yay_git"
         success "Done"
     else
