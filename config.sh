@@ -132,7 +132,7 @@ install_programs () {
          --needed \
          --answerdiff None \
          --answerclean None \
-         --mflags \"--noconfirm\" btop dust duf bat micro lsd gdu fd mc"   
+         --mflags \"--noconfirm\" --overwrite \* btop dust duf bat micro lsd gdu fd mc"   
     success "Done"
 }
 
