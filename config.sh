@@ -37,7 +37,7 @@ check_steamos () {
 disable_ro () {
     # check if system is ro and remount to rw
     warn "Checking fs ro/rw..."
-    fs_status=$(steamos-readonly status)
+    fs_status=$(steamos-readonly status || true)
     if [ "$fs_status" = "enabled" ]; then
         steamos-readonly disable
         success "steamos rw enabled"
@@ -76,7 +76,7 @@ init_pacman () {
 install_devel () {
     # install minimal devel deps
     warn "installing base-devel package..."
-    pacman -S --needed --noconfirm --disable-download-timeout base-devel
+    pacman -S --needed --noconfirm --disable-download-timeout --overwrite \* base-devel
     success "Done"
 }
 
