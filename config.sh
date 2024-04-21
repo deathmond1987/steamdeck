@@ -52,7 +52,7 @@ init_pacman () {
     warn "initializing pacman DB"
     pacman-key --init
     pacman-key --populate
-    pacman -Sy
+    pacman -Sy --noconfirm --needed archlinux-keyring
     success "Done"
 
 #    if [ ! -f $HOME/pacman.conf ]; then
@@ -160,6 +160,10 @@ check_mitigations () {
 }
 
 main () {
+    # check_root disable_ro and init_pacman can be replaced by steamos-devmode enable
+    # also steamos_devmode reinstalls all installed packages by 
+    ## pacman --noconfirm -S $(pacman -Qnkq | cut -d' ' -f1 | sort | uniq)
+    # this return to system prunned package headers
     check_root
     check_steamos
     disable_ro
