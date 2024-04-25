@@ -98,7 +98,7 @@ enable_passwd () {
 install_yay () {
     if ! command -v yay >/dev/null 2>&1 ; then 
         warn "Installing yay..."
-        yay_git="\"$HOME\"/yay-bin"
+        yay_git=$HOME/yay-bin
         # clean yay install
         if [ -d "${yay_git}" ]; then
             rm -rf "${yay_git}"
