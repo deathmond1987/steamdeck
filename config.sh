@@ -95,24 +95,28 @@ enable_passwd () {
     sed -i "s/$WHEEL_NEW/$WHEEL_OLD/g" "$SUDO_PATH"
 }
 
+init_yay () {
+    warn "Installing yay..."
+    yay_git=$HOME/yay-bin
+    # clean yay install
+    if [ -d "${yay_git}" ]; then
+        rm -rf "${yay_git}"
+    fi
+    # yay install
+    su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin && \
+        cd yay-bin && \
+        yes | makepkg -si && \
+        cd .. && \
+        rm -rf yay-bin && \
+        yay -Y --gendb && \
+        yay -Y --devel --save"
+    rm -rf "$yay_git"
+    success "Done"
+}
+
 install_yay () {
     if ! command -v yay >/dev/null 2>&1 ; then 
-        warn "Installing yay..."
-        yay_git=$HOME/yay-bin
-        # clean yay install
-        if [ -d "${yay_git}" ]; then
-            rm -rf "${yay_git}"
-        fi
-        # yay install
-        su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin && \
-            cd yay-bin && \
-            yes | makepkg -si && \
-            cd .. && \
-            rm -rf yay-bin && \
-            yay -Y --gendb && \
-            yay -Y --devel --save"
-        rm -rf "$yay_git"
-        success "Done"
+        init_yay
     else
         success "yay already installed. Skipping..."
     fi
