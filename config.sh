@@ -119,8 +119,8 @@ init_yay () {
     else
         warn "Installing yay v12.3.1"
         pacman -S go --needed --noconfirm
-        wget https://github.com/Jguer/yay/archive/v12.3.1.tar.gz -O yay_v12.3.1.tar.gz
-        tar -xf yay_v12.3.1.tar.gz
+        wget https://github.com/Jguer/yay/releases/download/v12.3.1/yay_12.3.1_x86_64.tar.gz -O yay12.tar.gz
+        tar -xf yay12.tar.gz
         cd ./yay-12.3.1_x86_64
         sudo cp ./yay /usr/sbin/yay
         sudo cp ./bash /usr/share/bash-completion/completions/yay
