@@ -119,11 +119,23 @@ init_yay () {
     else
         warn "Installing yay v12.3.1"
         pacman -S go --needed --noconfirm
-        su - "$SUDO_USER" -c "git clone https://github.com/Jguer/yay --branch=v12.3.1 ${yay_git} && \
-            cd ${yay_git} && \
-            yes | makepkg -si && \
-            cd .. && \
-            rm -rf ${yay_git} && \
+        su - "$SUDO_USER" -c "wget https://github.com/Jguer/yay/archive/v12.3.1.tar.gz -O yay_v12.3.1.tar.gz && \
+            tar -xf yay_v12.3.1.tar.gz
+            cd ./yay-12.3.1 && \
+            CGO_CPPFLAGS="${CPPFLAGS}" &&\
+            CGO_CFLAGS="-march=x86-64 -mtune=generic -O2 -pipe -fno-plt -fexceptions \
+        -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security \
+        -fstack-clash-protection -fcf-protection \
+        -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer" &&\
+            CGO_CXXFLAGS="${CFLAGS} -Wp,-D_GLIBCXX_ASSERTIONS" &&\
+            CGO_LDFLAGS="-Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now \
+         -Wl,-z,pack-relative-relocs" &&\
+            CGO_ENABLED=1 &&\
+            mkdir -p ./output &&\
+            make VERSION=12.3.1 DESTDIR="./output" PREFIX="/usr" build &&\
+            make VERSION=12.3.1 DESTDIR="./output" PREFIX="/usr" install &&\
+            cd .. &&\
+            rm -rf ./yay_v12.3.1 &&\
             yay -Y --gendb && \
             yay -Y --devel --save"
         pacman -R --noconfirm go
