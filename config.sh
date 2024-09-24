@@ -40,7 +40,9 @@ disable_ro () {
     fs_status=$(steamos-readonly status || true)
     if [ "$fs_status" = "enabled" ]; then
         steamos-readonly disable
-        success "steamos rw enabled"
+        success "steamos rw enabled. Done"
+    else
+        success "steamos already in rw. Done"
     fi
 }
 ############################
@@ -127,8 +129,8 @@ init_yay () {
         cp ./zsh /usr/share/zsh/site-functions/_yay
         cd ..
         rm -rf ./yay-12.3.1_x86_64
-        yay -Y --gendb
-        yay -Y --devel --save
+        su - "$SUDO_USER" -c "yay -Y --gendb &&\
+                              yay -Y --devel --save"
         pacman -R --noconfirm go
     fi
     rm -rf "$yay_git"
