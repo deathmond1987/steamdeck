@@ -99,7 +99,8 @@ init_yay () {
     warn "Installing yay..."
     ## yay install
     ## check alpm so exist. if old - then installing old yay
-    if [ ! -f /usr/lib/libalpm.so.14 ] ; then
+    alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
+    if [ "${alpm_version}" -ge "15" ] ; then
         warn "Libalpm.so.14 not found. Installing modern yay"
         yay_git=$HOME/yay-bin
         # clean yay install    
