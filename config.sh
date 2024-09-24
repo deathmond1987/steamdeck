@@ -131,8 +131,8 @@ init_yay () {
         rm -rf ./yay-12.3.1_x86_64
         rm -rf ./yay12.tar.gz
         su - "$SUDO_USER" -c "yay -Y --gendb &&\
-                              yay -Y --devel --save"
-        yay -R --noconfirm go
+                              yay -Y --devel --save &&\
+                              yay -R --noconfirm go"
         success "Yay working!"
     fi
     rm -rf "$yay_git"
