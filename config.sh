@@ -121,7 +121,7 @@ init_yay () {
         pacman -S go --needed --noconfirm
         wget https://github.com/Jguer/yay/releases/download/v12.3.1/yay_12.3.1_x86_64.tar.gz -O yay12.tar.gz
         tar -xf yay12.tar.gz
-        cd ./yay-12.3.1_x86_64
+        cd ./yay_12.3.1_x86_64
         cp ./yay /usr/sbin/yay
         cp ./bash /usr/share/bash-completion/completions/yay
         cp ./zsh /usr/share/zsh/site-functions/_yay
