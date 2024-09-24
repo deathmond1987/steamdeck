@@ -101,14 +101,14 @@ init_yay () {
     ## check alpm so exist. if old - then installing old yay
     alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
     pacman -V
+    yay_git=$HOME/yay-bin
+    # clean yay install    
+    if [ -d "${yay_git}" ]; then
+        rm -rf "${yay_git}"
+    fi
     success "pacman say that alpm version $alpm_version"
     if [ "${alpm_version}" -ge "15" ] ; then
         warn "installing latest yay"
-        yay_git=$HOME/yay-bin
-        # clean yay install    
-        if [ -d "${yay_git}" ]; then
-            rm -rf "${yay_git}"
-        fi
         su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin && \
             cd ${yay_git} && \
             yes | makepkg -si && \
@@ -118,13 +118,8 @@ init_yay () {
             yay -Y --devel --save"
     else
         warn "Installing yay v12.3.1"
-        yay_git=$HOME/yay
         pacman -S go --needed --noconfirm
-        # clean yay install    
-        if [ -d "${yay_git}" ]; then
-            rm -rf "${yay_git}"
-        fi
-        su - "$SUDO_USER" -c "git clone https://github.com/Jguer/yay --branch=v12.3.1 && \
+        su - "$SUDO_USER" -c "git clone https://github.com/Jguer/yay --branch=v12.3.1 ${yay_git} && \
             cd ${yay_git} && \
             yes | makepkg -si && \
             cd .. && \
