@@ -121,15 +121,16 @@ init_yay () {
     else
         warn "Installing yay v12.3.1"
         pacman -S --needed --noconfirm downgrade
-        wget --quiet https://github.com/Jguer/yay/releases/download/v12.3.1/yay_12.3.1_x86_64.tar.gz -O yay12.tar.gz
-        tar -xf yay12.tar.gz
+        targz=yay12.tar.gz
+        wget --quiet https://github.com/Jguer/yay/releases/download/v12.3.1/yay_12.3.1_x86_64.tar.gz -O $targz
+        tar -xf $targz
         cd ./yay_12.3.1_x86_64
         cp ./yay /usr/sbin/yay
         cp ./bash /usr/share/bash-completion/completions/yay
         cp ./zsh /usr/share/zsh/site-functions/_yay
         cd ..
         rm -rf ./yay-12.3.1_x86_64
-        rm -rf ./yay12.tar.gz
+        rm -rf ./$targz
         su - "$SUDO_USER" -c "yay -Y --gendb &&\
                               yay -Y --devel --save &&\
                               yay -R --noconfirm downgrade"
