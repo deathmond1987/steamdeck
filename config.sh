@@ -100,8 +100,10 @@ init_yay () {
     ## yay install
     ## check alpm so exist. if old - then installing old yay
     alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
+    pacman -V
+    success "pacman say that alpm version $alpm_version"
     if [ "${alpm_version}" -ge "15" ] ; then
-        warn "Libalpm.so.14 not found. Installing modern yay"
+        warn "installing latest yay"
         yay_git=$HOME/yay-bin
         # clean yay install    
         if [ -d "${yay_git}" ]; then
@@ -115,7 +117,7 @@ init_yay () {
             yay -Y --gendb && \
             yay -Y --devel --save"
     else
-        warn "Libalpm.so.14 found. install yay 12.3.1"
+        warn "Installing yay v12.3.1"
         yay_git=$HOME/yay
         pacman -S go --needed --noconfirm
         # clean yay install    
