@@ -97,19 +97,39 @@ enable_passwd () {
 
 init_yay () {
     warn "Installing yay..."
-    yay_git=$HOME/yay-bin
-    # clean yay install
-    if [ -d "${yay_git}" ]; then
-        rm -rf "${yay_git}"
+    ## yay install
+    ## check alpm so exist. if old - then installing old yay
+    if [ ! -f /usr/lib/libalpm.so.14 ] ; then
+        warn "Libalpm.so.14 not found. Installing modern yay"
+        yay_git=$HOME/yay-bin
+        # clean yay install    
+        if [ -d "${yay_git}" ]; then
+            rm -rf "${yay_git}"
+        fi
+        su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin && \
+            cd ${yay_git} && \
+            yes | makepkg -si && \
+            cd .. && \
+            rm -rf ${yay_git} && \
+            yay -Y --gendb && \
+            yay -Y --devel --save"
+    else
+        warn "Libalpm.so.14 found. install yay 12.3.1"
+        yay_git=$HOME/yay
+        pacman -S go --needed --noconfirm
+        # clean yay install    
+        if [ -d "${yay_git}" ]; then
+            rm -rf "${yay_git}"
+        fi
+        su - "$SUDO_USER" -c "git clone https://github.com/Jguer/yay --branch=v12.3.1 && \
+            cd ${yay_git} && \
+            yes | makepkg -si && \
+            cd .. && \
+            rm -rf ${yay_git} && \
+            yay -Y --gendb && \
+            yay -Y --devel --save"
+        pacman -R --noconfirm go
     fi
-    # yay install
-    su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin && \
-        cd yay-bin && \
-        yes | makepkg -si && \
-        cd .. && \
-        rm -rf yay-bin && \
-        yay -Y --gendb && \
-        yay -Y --devel --save"
     rm -rf "$yay_git"
     success "Done"
 }
