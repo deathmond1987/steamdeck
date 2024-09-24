@@ -120,7 +120,7 @@ init_yay () {
             yay -Y --devel --save"
     else
         warn "Installing yay v12.3.1"
-        pacman -S go --needed --noconfirm
+        pacman -S --needed --noconfirm downgrade
         wget --quiet https://github.com/Jguer/yay/releases/download/v12.3.1/yay_12.3.1_x86_64.tar.gz -O yay12.tar.gz
         tar -xf yay12.tar.gz
         cd ./yay_12.3.1_x86_64
@@ -132,7 +132,7 @@ init_yay () {
         rm -rf ./yay12.tar.gz
         su - "$SUDO_USER" -c "yay -Y --gendb &&\
                               yay -Y --devel --save &&\
-                              yay -R --noconfirm go"
+                              yay -R --noconfirm downgrade"
         success "Yay working!"
     fi
     rm -rf "$yay_git"
