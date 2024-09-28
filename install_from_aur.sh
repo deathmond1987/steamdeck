@@ -20,7 +20,7 @@ install_script () {
     script_path=/home/deck/install_from_aur.sh
         if [ ! -f "$script_path" ]; then
             warn "script not found. Downloading..."
-            wget -O "$script_path" https://raw.githubusercontent.com/deathmond1987/homework/refs/heads/main/install_from_aur.sh
+            wget -O "$script_path" https://raw.githubusercontent.com/deathmond1987/steamdeck/refs/heads/main/install_from_aur.sh
             success "done"
     fi
     if [ ! "$(stat -c %a "$script_path")" = "700" ]; then
