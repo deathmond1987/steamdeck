@@ -27,7 +27,7 @@ install_script () {
         warn "script not executable. fixing..."
         chmod 700 "$script_path"
         success "done. re-run script with arg to install package from AUR"
-        warn "example: ./install_from_aur.sh spotify"
+        warn "example: sudo ./install_from_aur.sh spotify"
         exit 0
     fi
 }
