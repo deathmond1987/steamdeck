@@ -126,15 +126,15 @@ enable_passwd () {
 }
 
 install_yay_from_tar () {
-    	install -Dm755 ./yay /usr/sbin/yay
-	    install -Dm644 ./yay.8 /usr/share/man/man8/yay.8
-	    install -Dm644 ./bash /usr/share/bash-completion/completions/yay
-	    install -Dm644 ./zsh /usr/share/zsh/site-functions/_yay
-	    install -Dm644 ./fish /usr/share/fish/vendor_completions.d/yay.fish
-	    for lang in ca cs de en es eu fr_FR he id it_IT ja ko pl_PL pt_BR pt ru_RU ru sv tr uk zh_CN zh_TW; do \
-		    install -Dm644 ./${lang}.mo /usr/share/locale/$lang/LC_MESSAGES/yay.mo; \
-	    done
-    }
+    install -Dm755 ./yay /usr/sbin/yay
+    install -Dm644 ./yay.8 /usr/share/man/man8/yay.8
+    install -Dm644 ./bash /usr/share/bash-completion/completions/yay
+    install -Dm644 ./zsh /usr/share/zsh/site-functions/_yay
+    install -Dm644 ./fish /usr/share/fish/vendor_completions.d/yay.fish
+    for lang in ca cs de en es eu fr_FR he id it_IT ja ko pl_PL pt_BR pt ru_RU ru sv tr uk zh_CN zh_TW; do \
+        install -Dm644 ./${lang}.mo /usr/share/locale/$lang/LC_MESSAGES/yay.mo; \
+    done
+}
 
 init_yay () {
     warn "Installing yay..."
@@ -160,7 +160,6 @@ init_yay () {
     else
         warn "Installing yay v12.3.1"
         yay_install=/home/deck/yay_install
-	pacman -S --needed --noconfirm downgrade
         mkdir -p $yay_install
         targz=$yay_install/yay12.tar.gz
         wget --quiet https://github.com/Jguer/yay/releases/download/v12.3.1/yay_12.3.1_x86_64.tar.gz -O $targz
@@ -170,7 +169,8 @@ init_yay () {
         cd ..
         su - "$SUDO_USER" -c "yay -Y --gendb &&\
                               yay -Y --devel --save &&\
-                              yay -R --noconfirm downgrade"
+                              yay -S --needed --noconfirm downgrade &&\
+			      yay -R --noconfirm downgrade"
         success "Yay working!"
         rm -rf $yay_install
     fi
