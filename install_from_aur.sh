@@ -159,21 +159,21 @@ init_yay () {
             yay -Y --devel --save"
     else
         warn "Installing yay v12.3.1"
-        pacman -S --needed --noconfirm downgrade
-        targz=yay12.tar.gz
+        yay_install=/home/deck/yay_install
+	pacman -S --needed --noconfirm downgrade
+        mkdir -p $yay_install
+        targz=$yay_install/yay12.tar.gz
         wget --quiet https://github.com/Jguer/yay/releases/download/v12.3.1/yay_12.3.1_x86_64.tar.gz -O $targz
-        tar -xf $targz
-        cd ./yay_12.3.1_x86_64
+	tar --strip-components 1 -xf $targz -C $yay_install/
+        cd $yay_install
         install_yay_from_tar
         cd ..
-        rm -rf ./yay-12.3.1_x86_64
-        rm -rf ./$targz
         su - "$SUDO_USER" -c "yay -Y --gendb &&\
                               yay -Y --devel --save &&\
                               yay -R --noconfirm downgrade"
         success "Yay working!"
+        rm -rf $yay_install
     fi
-    rm -rf "$yay_git"
     success "Done"
 }
 
