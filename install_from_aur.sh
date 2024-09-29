@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ########### opts ###########
 set -eo pipefail
-# set -x
+set -x
 reset=$(tput sgr0)
 
 red=$(tput setaf 1)
@@ -148,7 +148,6 @@ init_yay () {
             yay -Y --devel --save"
     else
         warn "Installing yay v12.3.1"
-        pacman -S --needed --noconfirm downgrade
         targz=yay12.tar.gz
         wget --quiet https://github.com/Jguer/yay/releases/download/v12.3.1/yay_12.3.1_x86_64.tar.gz -O $targz
         tar -xf $targz
@@ -160,9 +159,7 @@ init_yay () {
         rm -rf ./yay-12.3.1_x86_64
         rm -rf ./$targz
         su - "$SUDO_USER" -c "yay -Y --gendb &&\
-                              yay -Y --devel --save &&\
-                              yay -R --noconfirm downgrade"
-        success "Yay working!"
+                              yay -Y --devel --save"
     fi
     rm -rf "$yay_git"
     success "Done"
