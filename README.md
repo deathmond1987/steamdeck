@@ -35,16 +35,16 @@ wget -O - https://raw.githubusercontent.com/deathmond1987/steamdeck/refs/heads/m
 Как пользоваться?  
 Пример установки пакета:  
 ```
-./install_from_aur.sh install openenroth - установит пакет с названием openenroth   
-./install_from_aur.sh install openenroth dive - установить пакеты с названием openenroth и dive  
+sudo ./install_from_aur.sh install openenroth - установит пакет с названием openenroth   
+sudo ./install_from_aur.sh install openenroth dive - установить пакеты с названием openenroth и dive  
 ```
 Пример удаления пакета:  
 ```
-./install_from_aur.sh remove openenroth - удалит пакет с названием openenroth  
-./install_from_aur.sh remove openenroth dive - удалит пакеты с названием openenroth и dive  
+sudo ./install_from_aur.sh remove openenroth - удалит пакет с названием openenroth  
+sudo ./install_from_aur.sh remove openenroth dive - удалит пакеты с названием openenroth и dive  
 ```
 Интерактивный режим:  
 ```
-./install_from_aur.sh openenroth - запустит поиск по имени openenroth в репозитории aur.  
+sudo ./install_from_aur.sh openenroth - запустит поиск по имени openenroth в репозитории aur.  
 ```
 затем выведет список всех пакетов по найденному имени с вопросом какой из пакетов ставить и предложит поставить его  
