@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ########### opts ###########
-set -euo pipefail
-# set -x
+set -eo pipefail
+ set -x
 reset=$(tput sgr0)
 
 red=$(tput setaf 1)
@@ -33,11 +33,32 @@ install_script () {
 }
 
 check_params () {
-    if [ -z "$1" ]; then
-        error "error. no package name to install. exiting"
-        warn "example: ./install_from_aur.sh spotify"
-        exit 1
-    fi
+    while [ "$1" != "" ]; do
+        case "$1" in
+           install|-i) yay_opts="-S --noconfirm --overwrite \*"
+                       shift
+                       while [ "$1" != "" ]; do
+                           package+=($1)
+                           shift
+                       done
+                       ;;
+            remove|-r) yay_opts="-R"
+                       shift
+                       while [ "$1" != "" ]; do
+                           package+=($1)
+                           shift
+                       done
+                       ;;
+                    *) yay_opts="--answerdiff None --answerclean None --noconfirm --needed"
+                       while [ "$1" != "" ]; do
+                           package+=($1)
+                           shift
+                       done
+                       ;;
+        esac
+        package+=($@)
+    done
+package=${package[@]}
 }
 
 check_root () {
@@ -79,23 +100,6 @@ init_pacman () {
     pacman-key --populate
     pacman -Sy --noconfirm --needed archlinux-keyring
     success "Done"
-
-#    if [ ! -f $HOME/pacman.conf ]; then
-#        # vavle playing with repo links. enshure that we have latest repo links
-#        warn "pacman.conf not found in $HOME dir"
-#        warn "Downloading latest pacman package config..."
-#        rm -rf /var/cache/pacman/pkg/*
-#        pacman -Sw --noconfirm pacman
-#        tar -xf /var/cache/pacman/pkg/pacman*.pkg.tar.zst \
-#            etc/pacman.conf \
-#            -C /home/"$SUDO_USER" \
-#            --strip-components 1 \
-#            --numeric-owner
-#        mv /etc/pacman.conf /etc/pacman.conf.old
-#        cp /home/"$SUDO_USER"/pacman.conf /etc/
-#        success "Done"
-#    fi
-
 }
 
 install_devel () {
@@ -118,6 +122,7 @@ enable_passwd () {
     warn "Enabling asking passwd..."
     # enable asking password
     sed -i "s/$WHEEL_NEW/$WHEEL_OLD/g" "$SUDO_PATH"
+    steamos-readonly enable
 }
 
 init_yay () {
@@ -173,12 +178,7 @@ install_yay () {
 
 install_programs () {
     warn "Installing additional apps..."
-    su - "$SUDO_USER" -c "echo y | LANG=C yay -S \
-         --provides=false \
-         --needed \
-         --answerdiff None \
-         --answerclean None \
-         --noconfirm --overwrite \* $*"
+    su - "$SUDO_USER" -c "LANG=C yay $yay_opts $package"
     success "Done"
 }
 
@@ -200,7 +200,8 @@ main () {
     install_programs "$@"
     enable_passwd
     trap '' ERR
-    steamos-readonly enable
 }
+
+main "$@"
 
 main "$@"
