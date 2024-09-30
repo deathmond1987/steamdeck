@@ -29,7 +29,7 @@ AUR (сокращение от Arch User Repository) - репозиторий п
 Как установить?   
 В терминале ввести  
 ```
-wget -O - https://raw.githubusercontent.com/deathmond1987/steamdeck/refs/heads/main/install_from_aur.sh | bash
+wget -qO - https://raw.githubusercontent.com/deathmond1987/steamdeck/refs/heads/main/install_from_aur.sh | bash
 ```
 
 Как пользоваться?  
