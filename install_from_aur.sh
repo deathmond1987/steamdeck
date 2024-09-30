@@ -126,6 +126,26 @@ enable_passwd () {
 }
 
 install_yay_from_tar () {
+    # alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
+    # case $alpm_version in
+    #     13) git_head=96f9018
+    #         ;;
+    #     14) git_head=02b6d80 
+    #         ;;
+    #     15) git_head=master
+    #         ;;
+    #      *) echo "script doesnt know nothing about libalpm version $alpm_version"
+    #         exit 1
+    #         ;;
+    # esac
+    # yay-bin_dir=/home/deck/yay-bin
+    # git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
+    # su - $USER -c "git checkout $git_head &&\
+    #                 cd $yay_bin_dir &&\
+    #                 makepkg -si --noconfirm"
+    #        su - "$SUDO_USER" -c "yay -Y --gendb &&\
+    #                              yay -Y --devel --save"
+    # rm -rf ./yay_bin_dir
     cd $yay_install
     install -Dm755 ./yay /usr/sbin/yay
     install -Dm644 ./yay.8 /usr/share/man/man8/yay.8
