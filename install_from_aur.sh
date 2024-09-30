@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ########### opts ###########
 set -eo pipefail
- set -x
+# set -x
 reset=$(tput sgr0)
 
 red=$(tput setaf 1)
