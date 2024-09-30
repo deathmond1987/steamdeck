@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ########### opts ###########
 set -eo pipefail
-# set -x
+ set -x
 reset=$(tput sgr0)
 
 red=$(tput setaf 1)
@@ -125,6 +125,19 @@ enable_passwd () {
     steamos-readonly enable
 }
 
+install_yay_from_tar () {
+    cd $yay_install
+    install -Dm755 ./yay /usr/sbin/yay
+    install -Dm644 ./yay.8 /usr/share/man/man8/yay.8
+    install -Dm644 ./bash /usr/share/bash-completion/completions/yay
+    install -Dm644 ./zsh /usr/share/zsh/site-functions/_yay
+    install -Dm644 ./fish /usr/share/fish/vendor_completions.d/yay.fish
+    for lang in ca cs de en es eu fr_FR he id it_IT ja ko pl_PL pt_BR pt ru_RU ru sv tr uk zh_CN zh_TW; do \
+        install -Dm644 ./${lang}.mo /usr/share/locale/$lang/LC_MESSAGES/yay.mo; \
+    done
+    cd ..
+}
+
 init_yay () {
     warn "Installing yay..."
     ## yay install
@@ -148,16 +161,13 @@ init_yay () {
             yay -Y --devel --save"
     else
         warn "Installing yay v12.3.1"
-        targz=yay12.tar.gz
+        yay_install=/home/deck/yay_install
+        targz=$yay_install/yay12.tar.gz
+        mkdir -p $yay_install
         wget --quiet https://github.com/Jguer/yay/releases/download/v12.3.1/yay_12.3.1_x86_64.tar.gz -O $targz
-        tar -xf $targz
-        cd ./yay_12.3.1_x86_64
-        cp ./yay /usr/sbin/yay
-        cp ./bash /usr/share/bash-completion/completions/yay
-        cp ./zsh /usr/share/zsh/site-functions/_yay
-        cd ..
-        rm -rf ./yay-12.3.1_x86_64
-        rm -rf ./$targz
+        tar --strip-components 1 -xf $targz -C $yay_install/
+        install_yay_from_tar
+        rm -rf $yay_install
         su - "$SUDO_USER" -c "yay -Y --gendb &&\
                               yay -Y --devel --save"
     fi
@@ -174,7 +184,7 @@ install_yay () {
 }
 
 install_programs () {
-    warn "Installing additional apps..."
+    warn "Work with selected package: $package"
     su - "$SUDO_USER" -c "LANG=C yay $yay_opts $package"
     success "Done"
 }
