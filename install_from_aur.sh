@@ -149,8 +149,8 @@ init_yay () {
     cd $yay_bin_dir
     pacman -U --noconfirm --overwrite "/*" *.zst
     cd ..
-    yay -Y --gendb
-    yay -Y --devel --save
+    su - "$SUDO_USER" -c "yay -Y --gendb &&\
+                          yay -Y --devel --save"
     rm -rf "$yay_bin_dir"
 }
 
@@ -187,7 +187,7 @@ main () {
     init_pacman
     install_devel
     disable_passwd
-    trap 'enable_passwd' ERR
+    trap 'enable_passwd' ERR INT
     install_yay
     install_programs "$@"
     enable_passwd
