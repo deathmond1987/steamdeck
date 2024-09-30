@@ -131,6 +131,8 @@ init_yay () {
     if [ -d $yay_bin_dir ]; then
         rm -rf $yay_bin_dir
     fi
+    ## currently steamos is very old. 
+    ##we need to find yay binary that linked to current libalpm
     case $alpm_version in
          13) git_head=96f9018
              ;;
@@ -147,6 +149,7 @@ init_yay () {
                           git checkout $git_head &&\
                           makepkg -s --noconfirm"
     cd $yay_bin_dir
+    ## biggest fuckup ever. makeself cant give parameters to pacman
     pacman -U --noconfirm --overwrite "/*" *.zst
     cd ..
     su - "$SUDO_USER" -c "yay -Y --gendb &&\
