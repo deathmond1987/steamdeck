@@ -155,13 +155,11 @@ init_yay () {
 }
 
 install_yay () {
-    alpm_version=$(pacman -V | grep libalpm | cut -d "v" -f 3| tr -d '\n')
-    yay_alpm_version=$(yay --version |cut -d"v" -f3| tr -d '\n')
-    echo "yay alpm version is $yay_alpm_version"
-    echo "alpm version is $alpm_version"
     if ! command -v yay >/dev/null 2>&1 ; then
         init_yay
     else
+        alpm_version=$(pacman -V | grep libalpm | cut -d "v" -f 3| tr -d '\n')
+        yay_alpm_version=$(yay --version |cut -d"v" -f3| tr -d '\n')
         if [ ! "$yay_alpm_version" = "$alpm_version" ]; then
             init_yay
         else
