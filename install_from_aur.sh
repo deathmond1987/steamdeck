@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ########### opts ###########
 set -eo pipefail
-# set -x
+ set -x
 reset=$(tput sgr0)
 
 red=$(tput setaf 1)
@@ -38,27 +38,27 @@ check_params () {
            install|-i) yay_opts="-S --noconfirm --overwrite \*"
                        shift
                        while [ "$1" != "" ]; do
-                           package+=($1)
+                           package+=("$1")
                            shift
                        done
                        ;;
             remove|-r) yay_opts="-R"
                        shift
                        while [ "$1" != "" ]; do
-                           package+=($1)
+                           package+=("$1")
                            shift
                        done
                        ;;
                     *) yay_opts="--answerdiff None --answerclean None --noconfirm --needed"
                        while [ "$1" != "" ]; do
-                           package+=($1)
+                           package+=("$1")
                            shift
                        done
                        ;;
         esac
-        package+=($@)
+        package+=("$@")
     done
-package=${package[@]}
+packages=${package[*]}
 }
 
 check_root () {
@@ -125,87 +125,54 @@ enable_passwd () {
     steamos-readonly enable
 }
 
-install_yay_from_tar () {
-    # alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
-    # case $alpm_version in
-    #     13) git_head=96f9018
-    #         ;;
-    #     14) git_head=02b6d80 
-    #         ;;
-    #     15) git_head=master
-    #         ;;
-    #      *) echo "script doesnt know nothing about libalpm version $alpm_version"
-    #         exit 1
-    #         ;;
-    # esac
-    # yay-bin_dir=/home/deck/yay-bin
-    # git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
-    # su - $USER -c "git checkout $git_head &&\
-    #                 cd $yay_bin_dir &&\
-    #                 makepkg -si --noconfirm"
-    #        su - "$SUDO_USER" -c "yay -Y --gendb &&\
-    #                              yay -Y --devel --save"
-    # rm -rf ./yay_bin_dir
-    cd $yay_install
-    install -Dm755 ./yay /usr/sbin/yay
-    install -Dm644 ./yay.8 /usr/share/man/man8/yay.8
-    install -Dm644 ./bash /usr/share/bash-completion/completions/yay
-    install -Dm644 ./zsh /usr/share/zsh/site-functions/_yay
-    install -Dm644 ./fish /usr/share/fish/vendor_completions.d/yay.fish
-    for lang in ca cs de en es eu fr_FR he id it_IT ja ko pl_PL pt_BR pt ru_RU ru sv tr uk zh_CN zh_TW; do \
-        install -Dm644 ./${lang}.mo /usr/share/locale/$lang/LC_MESSAGES/yay.mo; \
-    done
-    cd ..
-}
-
 init_yay () {
-    warn "Installing yay..."
-    ## yay install
-    ## check alpm so exist. if old - then installing old yay
     alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
-    pacman -V
-    yay_git=$HOME/yay-bin
-    # clean yay install
-    if [ -d "${yay_git}" ]; then
-        rm -rf "${yay_git}"
+    yay_bin_dir=/home/deck/yay_bin
+    if [ -d $yay_bin_dir ]; then
+        rm -rf $yay_bin_dir
     fi
-    success "pacman say that alpm version $alpm_version"
-    if [ "${alpm_version}" -ge "15" ] ; then
-        warn "installing latest yay"
-        su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin && \
-            cd ${yay_git} && \
-            yes | makepkg -si && \
-            cd .. && \
-            rm -rf ${yay_git} && \
-            yay -Y --gendb && \
-            yay -Y --devel --save"
-    else
-        warn "Installing yay v12.3.1"
-        yay_install=/home/deck/yay_install
-        targz=$yay_install/yay12.tar.gz
-        mkdir -p $yay_install
-        wget --quiet https://github.com/Jguer/yay/releases/download/v12.3.1/yay_12.3.1_x86_64.tar.gz -O $targz
-        tar --strip-components 1 -xf $targz -C $yay_install/
-        install_yay_from_tar
-        rm -rf $yay_install
-        su - "$SUDO_USER" -c "yay -Y --gendb &&\
-                              yay -Y --devel --save"
-    fi
-    rm -rf "$yay_git"
-    success "Done"
+    case $alpm_version in
+         13) git_head=96f9018
+             ;;
+         14) git_head=02b6d80
+             ;;
+         15) git_head=master
+             ;;
+          *) echo "script doesnt know nothing about libalpm version $alpm_version"
+             exit 1
+             ;;
+    esac
+    su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
+                          cd $yay_bin_dir &&\
+                          git checkout $git_head &&\
+                          makepkg -s --noconfirm"
+    cd $yay_bin_dir
+    pacman -U --noconfirm --overwrite "/*" *.zst
+    cd ..
+    yay -Y --gendb
+    yay -Y --devel --save
+    rm -rf "$yay_bin_dir"
 }
 
 install_yay () {
+    alpm_version=$(pacman -V | grep libalpm | cut -d "v" -f 3| tr -d '\n')
+    yay_alpm_version=$(yay --version |cut -d"v" -f3| tr -d '\n')
+    echo "yay alpm version is $yay_alpm_version"
+    echo "alpm version is $alpm_version"
     if ! command -v yay >/dev/null 2>&1 ; then
         init_yay
     else
-        success "yay already installed. Skipping..."
+        if [ ! "$yay_alpm_version" = "$alpm_version" ]; then
+            init_yay
+        else
+            success "yay already installed. Skipping..."
+        fi
     fi
 }
 
 install_programs () {
-    warn "Work with selected package: $package"
-    su - "$SUDO_USER" -c "LANG=C yay $yay_opts $package"
+    warn "Work with selected package: $packages"
+    su - "$SUDO_USER" -c "LANG=C yay $yay_opts $packages"
     success "Done"
 }
 
