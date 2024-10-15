@@ -144,6 +144,7 @@ init_yay () {
              exit 1
              ;;
     esac
+    warn "alpm version: $alpm_version . selected yay git head: $git_head"
     su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
                           cd $yay_bin_dir &&\
                           git checkout $git_head &&\
