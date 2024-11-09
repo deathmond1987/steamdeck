@@ -127,23 +127,28 @@ enable_passwd () {
 
 init_yay () {
     alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
-    yay_bin_dir=/home/deck/yay_bin
-    if [ -d $yay_bin_dir ]; then
-        rm -rf $yay_bin_dir
+    if command -v yay >/dev/null 2>&1 ; then
+        yay_version=$(yay --version | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
+        if [ "$yay_version" -lt "$alpm_version" ]; then
+            yay_bin_dir=/home/deck/yay_bin
+            if [ -d $yay_bin_dir ]; then
+                rm -rf $yay_bin_dir
+            fi
+            ## currently steamos is very old. 
+            ##we need to find yay binary that linked to current libalpm
+            case $alpm_version in
+                13) git_head=96f9018
+                     ;;
+                14) git_head=02b6d80
+                     ;;
+                15) git_head=master
+                     ;;
+                *) echo "script doesnt know nothing about libalpm version $alpm_version"
+                     exit 1
+                     ;;
+            esac
+        fi
     fi
-    ## currently steamos is very old. 
-    ##we need to find yay binary that linked to current libalpm
-    case $alpm_version in
-         13) git_head=96f9018
-             ;;
-         14) git_head=02b6d80
-             ;;
-         15) git_head=master
-             ;;
-          *) echo "script doesnt know nothing about libalpm version $alpm_version"
-             exit 1
-             ;;
-    esac
     warn "alpm version: $alpm_version . selected yay git head: $git_head"
     su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
                           cd $yay_bin_dir &&\
