@@ -128,8 +128,12 @@ enable_passwd () {
 init_yay () {
     alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
     if command -v yay >/dev/null 2>&1 ; then
+        success "yay already installed! checking yay version"
         yay_version=$(yay --version | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
+        warn "yay version $yay version"
         if [ "$yay_version" -lt "$alpm_version" ]; then
+            warn "yay version $yay_version older than alpm $alpm_version"
+            warn "Getting yay for current alpm version..."
             yay_bin_dir=/home/deck/yay_bin
             if [ -d $yay_bin_dir ]; then
                 rm -rf $yay_bin_dir
