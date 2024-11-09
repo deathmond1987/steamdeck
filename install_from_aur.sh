@@ -151,20 +151,20 @@ init_yay () {
                      exit 1
                      ;;
             esac
+            warn "alpm version: $alpm_version . selected yay git head: $git_head"
+            su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
+                                  cd $yay_bin_dir &&\
+                                  git checkout $git_head &&\
+                                  makepkg -s --noconfirm"
+            cd $yay_bin_dir
+            ## biggest fuckup ever. makeself cant give parameters to pacman
+            pacman -U --noconfirm --overwrite "/*" *.zst
+           cd ..
+           su - "$SUDO_USER" -c "yay -Y --gendb &&\
+                                 yay -Y --devel --save"
+           rm -rf "$yay_bin_dir"
         fi
     fi
-    warn "alpm version: $alpm_version . selected yay git head: $git_head"
-    su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
-                          cd $yay_bin_dir &&\
-                          git checkout $git_head &&\
-                          makepkg -s --noconfirm"
-    cd $yay_bin_dir
-    ## biggest fuckup ever. makeself cant give parameters to pacman
-    pacman -U --noconfirm --overwrite "/*" *.zst
-    cd ..
-    su - "$SUDO_USER" -c "yay -Y --gendb &&\
-                          yay -Y --devel --save"
-    rm -rf "$yay_bin_dir"
 }
 
 install_yay () {
