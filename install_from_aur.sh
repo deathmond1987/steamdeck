@@ -160,11 +160,14 @@ init_yay () {
 
 install_yay () {
     if ! command -v yay >/dev/null 2>&1 ; then
+        warn "yay binary not found. Installing..."
         init_yay
     else
         alpm_version=$(pacman -V | grep libalpm | cut -d "v" -f 3| tr -d '\n')
         yay_alpm_version=$(yay --version |cut -d"v" -f3| tr -d '\n')
         if [ ! "$yay_alpm_version" = "$alpm_version" ]; then
+            warn "yay $yay_alpm_version version not equal alpm $alpm_version"
+            warn "reinstalling yay..."
             init_yay
         else
             success "yay already installed. Skipping..."
