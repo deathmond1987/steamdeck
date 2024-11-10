@@ -127,44 +127,35 @@ enable_passwd () {
 
 init_yay () {
     alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
-    if command -v yay >/dev/null 2>&1 ; then
-        success "yay already installed! checking yay version"
-        yay_version=$(yay --version | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
-        warn "yay version $yay version"
-        if [ "$yay_version" ! = "$alpm_version" ]; then
-            warn "yay version $yay_version not equal alpm version $alpm_version"
-            warn "Getting yay for current alpm version..."
-            yay_bin_dir=/home/deck/yay_bin
-            if [ -d $yay_bin_dir ]; then
-                rm -rf $yay_bin_dir
-            fi
-            ## currently steamos is very old. 
-            ##we need to find yay binary that linked to current libalpm
-            case $alpm_version in
-                13) git_head=96f9018
-                     ;;
-                14) git_head=02b6d80
-                     ;;
-                15) git_head=master
-                     ;;
-                *) echo "script doesnt know nothing about libalpm version $alpm_version"
-                     exit 1
-                     ;;
-            esac
-            warn "alpm version: $alpm_version . selected yay git head: $git_head"
-            su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
-                                  cd $yay_bin_dir &&\
-                                  git checkout $git_head &&\
-                                  makepkg -s --noconfirm"
-            cd $yay_bin_dir
-            ## biggest fuckup ever. makeself cant give parameters to pacman
-            pacman -U --noconfirm --overwrite "/*" *.zst
-           cd ..
-           su - "$SUDO_USER" -c "yay -Y --gendb &&\
-                                 yay -Y --devel --save"
-           rm -rf "$yay_bin_dir"
-        fi
+    yay_bin_dir=/home/deck/yay_bin
+    if [ -d $yay_bin_dir ]; then
+        rm -rf $yay_bin_dir
     fi
+    ## currently steamos is very old. 
+    ##we need to find yay binary that linked to current libalpm
+    case $alpm_version in
+         13) git_head=96f9018
+             ;;
+         14) git_head=02b6d80
+             ;;
+         15) git_head=master
+             ;;
+          *) echo "script doesnt know nothing about libalpm version $alpm_version"
+             exit 1
+             ;;
+    esac
+    warn "alpm version: $alpm_version . selected yay git head: $git_head"
+    su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
+                          cd $yay_bin_dir &&\
+                          git checkout $git_head &&\
+                          makepkg -s --noconfirm"
+    cd $yay_bin_dir
+    ## biggest fuckup ever. makeself cant give parameters to pacman
+    pacman -U --noconfirm --overwrite "/*" *.zst
+    cd ..
+    su - "$SUDO_USER" -c "yay -Y --gendb &&\
+                          yay -Y --devel --save"
+    rm -rf "$yay_bin_dir"
 }
 
 install_yay () {
