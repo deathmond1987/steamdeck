@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ########### opts ###########
 set -eo pipefail
-# set -x
+set -x
 reset=$(tput sgr0)
 
 red=$(tput setaf 1)
@@ -127,23 +127,25 @@ enable_passwd () {
 
 init_yay () {
     alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
+    ## yay_version=$(yay --version | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
     yay_bin_dir=/home/deck/yay_bin
     if [ -d $yay_bin_dir ]; then
         rm -rf $yay_bin_dir
     fi
-    ## currently steamos is very old. 
+    ## currently steamos is very old.
     ##we need to find yay binary that linked to current libalpm
     case $alpm_version in
-         13) git_head=96f9018
-             ;;
-         14) git_head=02b6d80
-             ;;
-         15) git_head=master
-             ;;
-          *) echo "script doesnt know nothing about libalpm version $alpm_version"
-             exit 1
-             ;;
+        13) git_head=96f9018
+            ;;
+        14) git_head=02b6d80
+            ;;
+        15) git_head=master
+            ;;
+        *) echo "script doesnt know nothing about libalpm version $alpm_version"
+           exit 1
+            ;;
     esac
+
     warn "alpm version: $alpm_version . selected yay git head: $git_head"
     su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
                           cd $yay_bin_dir &&\
@@ -160,14 +162,11 @@ init_yay () {
 
 install_yay () {
     if ! command -v yay >/dev/null 2>&1 ; then
-        warn "yay binary not found. Installing..."
         init_yay
     else
         alpm_version=$(pacman -V | grep libalpm | cut -d "v" -f 3| tr -d '\n')
         yay_alpm_version=$(yay --version |cut -d"v" -f3| tr -d '\n')
         if [ ! "$yay_alpm_version" = "$alpm_version" ]; then
-            warn "yay $yay_alpm_version version not equal alpm $alpm_version"
-            warn "reinstalling yay..."
             init_yay
         else
             success "yay already installed. Skipping..."
@@ -200,5 +199,7 @@ main () {
     enable_passwd
     trap '' ERR
 }
+
+main "$@"
 
 main "$@"
