@@ -98,46 +98,38 @@ enable_passwd () {
 }
 
 init_yay () {
-    warn "Installing yay..."
-    ## yay install
-    ## check alpm so exist. if old - then installing old yay
     alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
-    pacman -V
-    yay_git=/home/deck/yay-bin
-    # clean yay install    
-    if [ -d "${yay_git}" ]; then
-        rm -rf "${yay_git}"
+    ## yay_version=$(yay --version | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
+    yay_bin_dir=/home/deck/yay_bin
+    if [ -d $yay_bin_dir ]; then
+        rm -rf $yay_bin_dir
     fi
-    success "pacman say that alpm version $alpm_version"
-    if [ "${alpm_version}" -ge "15" ] ; then
-        warn "installing latest yay"
-        su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin && \
-            cd ${yay_git} && \
-            yes | makepkg -si && \
-            cd .. && \
-            rm -rf ${yay_git} && \
-            yay -Y --gendb && \
-            yay -Y --devel --save"
-    else
-        warn "Installing yay v12.3.1"
-        pacman -S --needed --noconfirm downgrade
-        targz=yay12.tar.gz
-        wget --quiet https://github.com/Jguer/yay/releases/download/v12.3.1/yay_12.3.1_x86_64.tar.gz -O $targz
-        tar -xf $targz
-        cd ./yay_12.3.1_x86_64
-        cp ./yay /usr/sbin/yay
-        cp ./bash /usr/share/bash-completion/completions/yay
-        cp ./zsh /usr/share/zsh/site-functions/_yay
-        cd ..
-        rm -rf ./yay-12.3.1_x86_64
-        rm -rf ./$targz
-        su - "$SUDO_USER" -c "yay -Y --gendb &&\
-                              yay -Y --devel --save &&\
-                              yay -R --noconfirm downgrade"
-        success "Yay working!"
-    fi
-    rm -rf "$yay_git"
-    success "Done"
+    ## currently steamos is very old.
+    ##we need to find yay binary that linked to current libalpm
+    case $alpm_version in
+        13) git_head=96f9018
+            ;;
+        14) git_head=02b6d80
+            ;;
+        15) git_head=master
+            ;;
+        *) echo "script doesnt know nothing about libalpm version $alpm_version"
+           exit 1
+            ;;
+    esac
+
+    warn "alpm version: $alpm_version . selected yay git head: $git_head"
+    su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
+                          cd $yay_bin_dir &&\
+                          git checkout $git_head &&\
+                          makepkg -s --noconfirm"
+    #cd $yay_bin_dir
+    ## biggest fuckup ever. makeself cant give parameters to pacman
+    #pacman -U --noconfirm --overwrite "/*" *.zst
+    #cd ..
+    su - "$SUDO_USER" -c "yay -Y --gendb &&\
+                          yay -Y --devel --save"
+    rm -rf "$yay_bin_dir"
 }
 
 install_yay () {
