@@ -103,7 +103,7 @@ init_yay () {
     ## check alpm so exist. if old - then installing old yay
     alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
     pacman -V
-    yay_git=$HOME/yay-bin
+    yay_git=/home/deck/yay-bin
     # clean yay install    
     if [ -d "${yay_git}" ]; then
         rm -rf "${yay_git}"
