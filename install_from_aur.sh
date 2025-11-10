@@ -92,6 +92,7 @@ init_pacman () {
     sudo pacman-key --init
     sudo pacman-key --populate
     sudo pacman -Sy --noconfirm --needed archlinux-keyring
+    sudo steamos-unminimize /usr/include
     success "Done"
 }
 
