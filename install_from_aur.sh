@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ########### opts ###########
 set -eo pipefail
-set -x
+#set -x
 reset=$(tput sgr0)
 
 red=$(tput setaf 1)
@@ -61,13 +61,6 @@ check_params () {
 packages=${package[*]}
 }
 
-check_root () {
-    if [[ "$EUID" -ne 0 ]]; then
-       error "You must be root to do this." 1>&2
-       exit 1
-    fi
-}
-
 check_steamos () {
     . /etc/os-release
     if [ "$ID" != "steamos" ]; then
@@ -83,7 +76,7 @@ disable_ro () {
     warn "Checking fs ro/rw..."
     fs_status=$(steamos-readonly status || true)
     if [ "$fs_status" = "enabled" ]; then
-        steamos-readonly disable
+        sudo steamos-readonly disable
         success "steamos rw enabled. Done"
     else
         success "steamos already in rw. Done"
@@ -96,16 +89,16 @@ disable_ro () {
 
 init_pacman () {
     warn "initializing pacman DB"
-    pacman-key --init
-    pacman-key --populate
-    pacman -Sy --noconfirm --needed archlinux-keyring
+    sudo pacman-key --init
+    sudo pacman-key --populate
+    sudo pacman -Sy --noconfirm --needed archlinux-keyring
     success "Done"
 }
 
 install_devel () {
     # install minimal devel deps
     warn "installing base-devel package..."
-    pacman -S --needed --noconfirm --disable-download-timeout --overwrite \* base-devel
+    sudo pacman -S --needed --noconfirm --disable-download-timeout --overwrite \* base-devel
     success "Done"
 }
 
@@ -115,49 +108,53 @@ disable_passwd () {
     WHEEL_OLD="%wheel ALL=(ALL) ALL"
     WHEEL_NEW="%wheel ALL=(ALL:ALL) NOPASSWD: ALL"
     # avoid asking password
-    sed -i "s/$WHEEL_OLD/$WHEEL_NEW/g" "$SUDO_PATH"
+    sudo sed -i "s/$WHEEL_OLD/$WHEEL_NEW/g" "$SUDO_PATH"
 }
 
 enable_passwd () {
     warn "Enabling asking passwd..."
     # enable asking password
-    sed -i "s/$WHEEL_NEW/$WHEEL_OLD/g" "$SUDO_PATH"
-    steamos-readonly enable
+    sudo sed -i "s/$WHEEL_NEW/$WHEEL_OLD/g" "$SUDO_PATH"
+    sudo steamos-readonly enable
 }
 
 init_yay () {
-    alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
-    ## yay_version=$(yay --version | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
-    yay_bin_dir=/home/deck/yay_bin
-    if [ -d $yay_bin_dir ]; then
-        rm -rf $yay_bin_dir
-    fi
-    ## currently steamos is very old.
-    ##we need to find yay binary that linked to current libalpm
-    case $alpm_version in
-        13) git_head=96f9018
-            ;;
-        14) git_head=02b6d80
-            ;;
-        15) git_head=master
-            ;;
-        *) echo "script doesnt know nothing about libalpm version $alpm_version"
-           exit 1
-            ;;
-    esac
+    if ! command -v yay ; then
+        alpm_version=$(pacman -V | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
+        ## yay_version=$(yay --version | grep libalpm | cut -f3 -d "v" | cut -f1 -d".")
+        yay_bin_dir=/home/deck/yay_bin
+        if [ -d $yay_bin_dir ]; then
+            rm -rf $yay_bin_dir
+        fi
+        ## currently steamos is very old.
+        ##we need to find yay binary that linked to current libalpm
+        case $alpm_version in
+            13) git_head=96f9018
+                ;;
+            14) git_head=02b6d80
+                ;;
+            15) git_head=master
+                ;;
+            *) echo "script doesnt know nothing about libalpm version $alpm_version"
+               exit 1
+                ;;
+        esac
 
-    warn "alpm version: $alpm_version . selected yay git head: $git_head"
-    su - "$SUDO_USER" -c "git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
-                          cd $yay_bin_dir &&\
-                          git checkout $git_head &&\
-                          makepkg -s --noconfirm"
-    cd $yay_bin_dir
-    ## biggest fuckup ever. makeself cant give parameters to pacman
-    pacman -U --noconfirm --overwrite "/*" *.zst
-    cd ..
-    su - "$SUDO_USER" -c "yay -Y --gendb &&\
-                          yay -Y --devel --save"
-    rm -rf "$yay_bin_dir"
+        warn "alpm version: $alpm_version . selected yay git head: $git_head"
+        git clone https://aur.archlinux.org/yay-bin $yay_bin_dir
+        cd $yay_bin_dir
+        git checkout $git_head
+        makepkg -s --noconfirm
+        cd $yay_bin_dir
+        ## biggest fuckup ever. makeself cant give parameters to pacman
+        pacman -U --noconfirm --overwrite "/*" *.zst
+        cd ..
+        yay -Y --gendb
+        yay -Y --devel --save
+        rm -rf "$yay_bin_dir"
+    else
+        echo "yay found!"
+    fi
 }
 
 install_yay () {
@@ -176,18 +173,17 @@ install_yay () {
 
 install_programs () {
     warn "Work with selected package: $packages"
-    su - "$SUDO_USER" -c "LANG=C yay $yay_opts $packages"
+    LANG=C yay $yay_opts $packages
     success "Done"
 }
 
 main () {
     # check_root disable_ro and init_pacman can be replaced by steamos-devmode enable
     # also steamos_devmode reinstalls all installed packages by
-    ## pacman --noconfirm -S $(pacman -Qnkq | cut -d' ' -f1 | sort | uniq)
+    ## sudo steamos-unminimize /usr/include
     # this return to system prunned package headers
     install_script
     check_params "$@"
-    check_root
     check_steamos
     disable_ro
     init_pacman
