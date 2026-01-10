@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ########### opts ###########
 set -eo pipefail
-set -x
+#set -x
 reset=$(tput sgr0)
 
 red=$(tput setaf 1)
@@ -67,7 +67,6 @@ check_steamos () {
         error "This script for SteamOS only! Exiting..."
         exit 1
     fi
-
 }
 
 # or maybe just use user env. maybe brew or nix...
@@ -82,6 +81,7 @@ disable_ro () {
         success "steamos already in rw. Done"
     fi
 }
+
 ############################
 ## TO DO:
 ## update pacman.conf from repo
@@ -92,7 +92,7 @@ init_pacman () {
     sudo pacman-key --init
     sudo pacman-key --populate
     sudo pacman -Sy --noconfirm --needed archlinux-keyring
-    sudo steamos-unminimize /usr/include
+#    sudo steamos-unminimize /usr/include 2>&1 | sed '/+\ pacman -Qkq/d'
     success "Done"
 }
 
@@ -134,7 +134,9 @@ init_yay () {
                 ;;
             14) git_head=02b6d80
                 ;;
-            15) git_head=master
+            15) git_head=d1df68f
+                ;;
+            16) git_head=master
                 ;;
             *) echo "script doesnt know nothing about libalpm version $alpm_version"
                exit 1
@@ -148,7 +150,7 @@ init_yay () {
         makepkg -s --noconfirm
         cd $yay_bin_dir
         ## biggest fuckup ever. makeself cant give parameters to pacman
-        pacman -U --noconfirm --overwrite "/*" *.zst
+        sudo pacman -U --noconfirm --overwrite "/*" *.zst
         cd ..
         yay -Y --gendb
         yay -Y --devel --save
